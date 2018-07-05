@@ -4,32 +4,33 @@ const blankReg = /\s{2,}/g;
 export default function parseTextNode(node) {
   let text = node.nodeValue;
   if (!hasExpressReg.test(text)) {
-    node.nodeValue = text.replace(blankReg, ' ');
-    return;
+    const ret = node.nodeValue = text.trim();
+    return ret ? null : [];
   }
   const texts = parseText(text);
   const parent = node.parentNode;
   const next = node.nextSibling;
-  texts.forEach((text, index) => {
+  for(let i = 0; i < texts.length; i++) {
+    let text = texts[i];
     let newNode;
     if (text instanceof String) {
       newNode = document.createComment('');
-      texts[index] = {
+      texts[i] = {
         type: 'text',
-        value: text.trim()
+        value: new Function(`with(this){return String(${text})}`)
       };
     } else {
       newNode = document.createTextNode(text.replace(blankReg, ' '));
-      texts[index] = null;
+      texts[i] = null;
     }
-    if (!index) {
+    if (!i) {
       parent.replaceChild(newNode, node);
     } else if (next) {
       parent.insertBefore(newNode, next);
     } else {
       parent.appendChild(newNode);
     }
-  });
+  }
   return texts;
 }
 
@@ -53,21 +54,25 @@ function parseText(text) {
         exp[1] = i;
         if (typeof lastIndex !== 'number') {
           if (exp[0] > 0) {
-            result.push(text.substring(0, exp[0]));
+            const ret = text.substring(0, exp[0]).trim();
+            ret && result.push(ret);
           }
         } else {
           if (exp[0] > lastIndex + 1) {
-            result.push(text.substring(lastIndex + 1, exp[0]));
+            const ret = text.substring(lastIndex + 1, exp[0]).trim();
+            ret && result.push(ret);
           }
         }
         lastIndex = i;
-        result.push(new String(text.substring(exp[0] + 1, exp[1]).trim()));
+        const ret = text.substring(exp[0] + 1, exp[1]).trim();
+        ret && result.push(new String(ret));
         rightCount = leftCount = 0;
       }
     }
   }
   if (lastIndex < text.length - 1) {
-    result.push(text.substring(lastIndex + 1));
+    const ret = text.substring(lastIndex + 1).trim();
+    ret && result.push(ret);
   }
   return result;
 }

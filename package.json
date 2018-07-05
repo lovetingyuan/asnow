@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/standalone": "^7.0.0-beta.51",
     "babel-eslint": "^8.2.2",
     "live-server": "^1.2.0"
   },

@@ -10,50 +10,67 @@
       margin: 0;
     }
   </style>
+  <script src="node_modules/@babel/standalone/babel.js"></script>
 </head>
 <body>
-  <code>
-    <script type="text/template" name="sub-component">
-      <div>
-        this is a sub component
-      </div>
-    </script>
-    <xmp id="template" style="font-size: 1.2em; line-height: 1.4em;">
-      <div :style="{color}" style="font-size: 32px;" title="test">@{name} --- yes <br>
-        <span :class="{bold: hasClass, sdf: true}" class="sdfs">
-          my age: {age}
-        </span>
-        <input type="text" :value="name" oninput="handleInput(event)">
-        <ul>
-          <li #for="vv, ii of list by ii * 5">
-            {  ii + 1  } -   :  <span #if="vv % 2">{vv} --- { name}</span>
-            <ul>
-              <li #for="vvv of list3 by vvv">@{vvv}$
-                <ul>
-                  <li #for="list2" #if="$value.name.length > 3">{$value.name}</li>
-                </ul>
-              </li>
-            </ul>
-          </li>
-          <p>{age}</p>
-          <!-- <my-com :title="dsfs" style="color: red;" #for="llllist"></my-com> -->
-          <hr>
-          <li #for="list2" title="list2" #if="$value.name.length > 3" style="border-bottom: 1px solid">
-            {  String($value.name).toUpperCase()  }
-          </li>
-          <hr>
-          <p>{siteName}</p>
-        </ul>
-        <a :href="'https://' + link" #if="name.length > 3" target="_blank">
-          <span :title="siteName" style="color: rosybrown;">=>{siteName}<span :title="name">
-            {name}
-            sdfs <span #if="age > 35"> ---{parseInt(name, 10) || age}--- </span>
-          </span></span>
-        </a>
-      </div>
-    </xmp>
-  </code>
   <div id="app"></div>
-  <script src="./index.js" type="module"></script>
+  <script type="text/template" name="my-comp">
+    <div :title="title"> 
+      this is title:{title}
+      <ul>
+        <li #for="friend of friends" @click="showMsg">
+          name: {friend.name} age: {friend.age} <br>
+          <i #for="event, i of friend.events" #if="event.length > 3">{i+1}: {event}__</i>
+        </li>
+        <p @click="showMsg"> this is subtitle: {subTitle} </p>
+      </ul>
+      <button #if="title > 0.5" :title="'hhh' + title" @click="changeTitle">if title > 0.5</button>
+    </div>
+  </script>
+  <script type="text/babel" data-plugins="proposal-decorators, proposal-class-properties">
+    window.test = function(Component, render) {
+      const template = document.querySelector('script[type="text/template"]');
+      @Component({
+        name: template.name,
+        template: template.innerHTML
+      })
+      class MyComp {
+        title = 'main-title';
+        subTitle = 'sub-title';
+        friends = [{
+          name: 'dsfdsf',
+          age: 34,
+          events: ['swim', 'eat', 'movie']
+        }, {
+          name: 'hdhfeiwf',
+          age: 50,
+          events: []
+        }, {
+          name: 'fsdeie',
+          age: 14,
+          events: ['hike', 'play with cat']
+        }];
+        showMsg() {
+          this.title = Math.random();
+          this.subTitle = this.title + '-999';
+          console.log('showMsg');
+          this.render();
+        }
+        changeTitle() {
+          this.title = 0.35;
+          this.friends.push({
+            name: 'rrrrrrr',
+            age: 122,
+            events: [22, '444444']
+          });
+          console.log('changeTitle');
+          this.render();
+        }
+      }
+      console.log(MyComp.meta);
+      render(MyComp, document.getElementById('app'));
+    };
+  </script>
+  <script src="./index.js" type="module" async></script>
 </body>
 </html>

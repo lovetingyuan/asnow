@@ -1,5 +1,5 @@
 export default function updateTextNode(node, meta, state) {
-  let newText = meta.text.call(state);
+  let newText = meta.value.call(state);
   const parent = node.parentNode;
   if (!newText) {
     if (node.nodeType !== 8) {

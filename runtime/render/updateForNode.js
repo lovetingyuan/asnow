@@ -1,26 +1,32 @@
 import updateElement from './updateElement.js';
 
+function getNewScope(vname, iname, v, i, state) {
+  const scope = {
+    [vname]: v
+  };
+  if (iname) {
+    scope[iname] = i;
+  }
+  scope.__proto__ = state;
+  return scope;
+}
+
 export default function updateForNode(node, list, meta, state) {
   const length = list.length;
   const parent = node.parentNode;
   const condition = meta.directives.if;
-  const { key, vars = ['$value', '$index'] } = meta.directives.for;
-
-  if (!node.__length__) {
+  const { key, value: valueName, index: indexName } = meta.directives.for;
+  if (node.nodeType === 8) {
     if (!length) return;
     let keys;
     let next = node.nextSibling;
     for (let index = 0; index < length; index++) {
-      const value = list[index];
-      const newScope = Object.assign({
-        [vars[0]]: value,
-        [vars[1]]: index
-      }, state);
+      const newScope = getNewScope(valueName, indexName, list[index], index, state);
       const bool = condition ? condition.call(newScope) : true;
       let newNode;
       if (bool) {
         newNode = meta.element.cloneNode(true);
-        updateElement(newNode, meta.meta, newScope);
+        updateElement(newNode, meta, newScope);
       } else {
         newNode = document.createComment('for-if');
       }
@@ -43,23 +49,17 @@ export default function updateForNode(node, list, meta, state) {
     }
   } else {
     if (!length) {
-      const len = node.__length__;
-      for (let i = 1; i < len; i++) {
+      let len = node.__length__ - 1;
+      while(len--) {
         parent.removeChild(node.nextSibling);
       }
-      const comment = document.createComment('for');
-      comment.__length__ = 0;
-      parent.replaceChild(comment, node);
+      parent.replaceChild(document.createComment('for'), node);
     } else {
       if (!key) { // default reuse each node one by one
         let currentNode = node;
         const preLength = node.__length__;
         for (let index = 0, len = Math.min(preLength, length); index < len; index++) {
-          const value = list[index];
-          const newScope = Object.assign({
-            [vars[0]]: value,
-            [vars[1]]: index
-          }, state);
+          const newScope = getNewScope(valueName, indexName, list[index], index, state);
           const bool = condition ? condition.call(newScope) : true;
           let newNode;
           if (bool) {
@@ -69,7 +69,7 @@ export default function updateForNode(node, list, meta, state) {
             } else {
               newNode = currentNode;
             }
-            updateElement(newNode, meta.meta, newScope);
+            updateElement(newNode, meta, newScope);
           } else {
             if (currentNode.nodeType === 8) {
               newNode = currentNode;
@@ -85,16 +85,12 @@ export default function updateForNode(node, list, meta, state) {
         }
         if (preLength < length) {
           for (let index = preLength; index < length; index++) {
-            const value = list[index];
-            const newScope = Object.assign({
-              [vars[0]]: value,
-              [vars[1]]: index
-            }, state);
+            const newScope = getNewScope(valueName, indexName, list[index], index, state);
             const bool = condition ? condition.call(newScope) : true;
             let newNode;
             if (bool) {
               newNode = meta.element.cloneNode(true);
-              updateElement(newNode, meta.meta, newScope);
+              updateElement(newNode, meta, newScope);
             } else {
               newNode = document.createComment('for-if');
             }
@@ -127,11 +123,7 @@ export default function updateForNode(node, list, meta, state) {
         }
         let newKeys = [];
         for (let index = 0; index < length; index++) {
-          const value = list[index];
-          const newScope = Object.assign({
-            [vars[0]]: value,
-            [vars[1]]: index
-          }, state);
+          const newScope = getNewScope(valueName, indexName, list[index], index, state);
           const bool = condition ? condition.call(newScope) : true;
           const newKey = key.call(newScope);
           newKeys.push(newKey);
@@ -142,16 +134,16 @@ export default function updateForNode(node, list, meta, state) {
               if (oldNode.nodeType === 8) {
                 parent.removeChild(oldNode);
                 newNode = meta.element.cloneNode(true);
-                updateElement(newNode, meta.meta, newScope);
+                updateElement(newNode, meta, newScope);
               } else {
                 newNode = oldNode;
-                updateElement(newNode, meta.meta, newScope);
+                updateElement(newNode, meta, newScope);
               }
             } else {
               if (node.nodeType !== 8) {
                 parent.removeChild(oldNode);
                 newNode = meta.element.cloneNode(true);
-                updateElement(newNode, meta.meta, newScope);
+                updateElement(newNode, meta, newScope);
               } else {
                 newNode = oldNode;
               }
@@ -160,7 +152,7 @@ export default function updateForNode(node, list, meta, state) {
           } else {
             if (bool) {
               newNode = meta.element.cloneNode(true);
-              updateElement(newNode, meta.meta, newScope);
+              updateElement(newNode, meta, newScope);
             } else {
               newNode = document.createComment('for-if');
             }

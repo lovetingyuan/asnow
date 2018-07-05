@@ -16,21 +16,30 @@ import { store } from '../../reducers/index.js';
           index,
           done: item.done
         }"
-        :for="(item, index) of todoList"
+        #for="(item, index) of todoList"
+      />
+      <todo-item
+        text="item.text",
+        index="index"
+        done="item.done"
+        #for="(item, index) of todoList"
       />
     </ul>
   `,
   components: {
-    'todo-item': todoItem
+    todoItem
   },
 })
 export default class TodoList {
-  @select('todoList')
-  list
-  @select('filterType')
-  type
+  // @select('todoList')
+  // list
+  // @select('filterType')
+  // type
+  @select('todoList', 'filterType = type')
+  state
   get todoList() {
-    const { type, list } = this;
+    // const { type, list } = this;
+    const { todoList, type } = this.state;
     return type === 'all' ? list : list.filter(v => type === 'done' ? v.done : !v.done);
   }
 }
