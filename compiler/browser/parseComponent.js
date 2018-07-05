@@ -17,10 +17,7 @@ export default function parseComponent(node) {
     if (attrMap.bindings) {
       meta.bindings = attrMap.bindings;
     }
-    if (attrMap.attrs) {
-      meta.attrs = attrMap.attrs;
-    }
   }
-  node.parentNode.replaceChild(document.createComment('component'), node);
+  node.parentNode.replaceChild(document.createComment(componentName), node);
   return meta;
 }
