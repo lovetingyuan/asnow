@@ -19,7 +19,8 @@ import updateNode from './render/updateNode.js';
 function Component(meta) {
   const {name, style, props, template, components} = meta;
   // TODO check name and template required
-  const { meta: compileMeta, template: templateStr } = compile(template);
+  const compileMeta = compile(template);
+  compileMeta.components = components;
   return function (target) {
     target.prototype.render = function render() {
       updateNode(this.$dom, compileMeta, this);
@@ -31,17 +32,11 @@ function Component(meta) {
       meta: {
         value: compileMeta
       },
-      template: {
-        value: templateStr
-      },
       props: {
         value: props
-      },
-      subComponents: {
-        value: components
       }
     });
-  }
+  };
 }
 
 export default Component;

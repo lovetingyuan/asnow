@@ -41,9 +41,12 @@ function getClass(binding, state) {
 }
 
 export default function updateElement(node, meta, state) {
-  const { nodes, bindings, events } = meta;
+  const { nodes, bindings, events, name } = meta;
+  if (name) {
+    node.setAttribute('data-component', name);
+  }
   bindings && Object.keys(bindings).forEach(attrName => {
-    let newAttrValue = '';
+    let newAttrValue;
     if (attrName === 'style') {
       newAttrValue = getStyle(bindings.style, state);
     } else if (attrName === 'class') {
