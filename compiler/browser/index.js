@@ -7,12 +7,9 @@ export default function compile(node) {
   }
   if (node.nodeType !== 1) return;
   const meta = parseNode(node);
-  const template = node.outerHTML;
+  meta.template = node.outerHTML;
   node = null;
-  return {
-    meta,
-    template
-  };
+  return meta;
 }
 
 /**

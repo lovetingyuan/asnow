@@ -1,7 +1,7 @@
 import parseForExpression from './parseForExpression.js';
 import parseEventExpression from './parseEventExpression.js';
 
-export function parseComponentAttributes() {
+export function parseComponentAttributes(node) {
   const attrs = [...node.attributes];
   const attrMap = {
     directives: {}, // start with '#', for now: #if, #for

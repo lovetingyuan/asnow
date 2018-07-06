@@ -14,16 +14,19 @@
 </head>
 <body>
   <div id="app"></div>
-  <script type="text/template" name="my-comp">
+  <script type="text/template" name="root-comp">
     <div :title="title"> 
       this is title:{title}
       <ul>
         <li #for="friend of friends" @click="showMsg">
-          name: {friend.name} age: {friend.age} <br>
-          <i #for="event, i of friend.events" #if="event.length > 3">{i+1}: {event}__</i>
+          name: {friend.name} --- age: {friend.age} <br>
+          <ol>
+            <li #for="event of friend.events" #if="event < 0.5"> {event}</li>
+          </ol>
         </li>
         <p @click="showMsg"> this is subtitle: {subTitle} </p>
       </ul>
+      <my-comp :title="title" a="aaa"></my-comp>
       <button #if="title > 0.5" :title="'hhh' + title" @click="changeTitle">if title > 0.5</button>
     </div>
   </script>
@@ -31,8 +34,18 @@
     window.test = function(Component, render) {
       const template = document.querySelector('script[type="text/template"]');
       @Component({
-        name: template.name,
-        template: template.innerHTML
+        name: 'my-comp',
+        template: '<div>this is sub component<i>{time}</i></div>'
+      })
+      class MySubComp {
+        time = Date.now();
+      }
+      @Component({
+        name: template.getAttribute('name'),
+        template: template.innerHTML,
+        components: {
+          'my-comp': MySubComp
+        }
       })
       class MyComp {
         title = 'main-title';
@@ -40,7 +53,7 @@
         friends = [{
           name: 'dsfdsf',
           age: 34,
-          events: ['swim', 'eat', 'movie']
+          events: [.234, .3, .4]
         }, {
           name: 'hdhfeiwf',
           age: 50,
@@ -48,7 +61,7 @@
         }, {
           name: 'fsdeie',
           age: 14,
-          events: ['hike', 'play with cat']
+          events: [0.2, 0.8]
         }];
         showMsg() {
           this.title = Math.random();
@@ -61,13 +74,13 @@
           this.friends.push({
             name: 'rrrrrrr',
             age: 122,
-            events: [22, '444444']
+            events: Array(5).fill().map(() => Math.random())
           });
           console.log('changeTitle');
           this.render();
         }
       }
-      console.log(MyComp.meta);
+      console.log(MyComp);
       render(MyComp, document.getElementById('app'));
     };
   </script>

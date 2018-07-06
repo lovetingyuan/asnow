@@ -1,5 +1,4 @@
 import updateElement from './updateElement.js';
-import templateToElement from '../../compiler/browser/templateToElement.js';
 
 export default function updateIfNode(node, meta, state) {
   const bool = meta.directives.if.call(state);

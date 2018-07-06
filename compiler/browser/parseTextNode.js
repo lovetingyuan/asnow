@@ -4,7 +4,7 @@ const blankReg = /\s{2,}/g;
 export default function parseTextNode(node) {
   let text = node.nodeValue;
   if (!hasExpressReg.test(text)) {
-    const ret = node.nodeValue = text.trim();
+    const ret = node.nodeValue = text.replace(blankReg, ' ');
     return ret ? null : [];
   }
   const texts = parseText(text);
@@ -54,24 +54,24 @@ function parseText(text) {
         exp[1] = i;
         if (typeof lastIndex !== 'number') {
           if (exp[0] > 0) {
-            const ret = text.substring(0, exp[0]).trim();
+            const ret = text.substring(0, exp[0]);
             ret && result.push(ret);
           }
         } else {
           if (exp[0] > lastIndex + 1) {
-            const ret = text.substring(lastIndex + 1, exp[0]).trim();
+            const ret = text.substring(lastIndex + 1, exp[0]);
             ret && result.push(ret);
           }
         }
         lastIndex = i;
-        const ret = text.substring(exp[0] + 1, exp[1]).trim();
+        const ret = text.substring(exp[0] + 1, exp[1]);
         ret && result.push(new String(ret));
         rightCount = leftCount = 0;
       }
     }
   }
   if (lastIndex < text.length - 1) {
-    const ret = text.substring(lastIndex + 1).trim();
+    const ret = text.substring(lastIndex + 1);
     ret && result.push(ret);
   }
   return result;

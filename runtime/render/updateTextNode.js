@@ -3,13 +3,11 @@ export default function updateTextNode(node, meta, state) {
   const parent = node.parentNode;
   if (!newText) {
     if (node.nodeType !== 8) {
-      const comment = document.createComment('');
-      parent.replaceChild(comment, node);
+      parent.replaceChild(document.createComment(''), node);
     }
   } else if (newText !== node.nodeValue) {
     if (node.nodeType !== 3) {
-      const newNode = document.createTextNode(newText);
-      parent.replaceChild(newNode, node);
+      parent.replaceChild(document.createTextNode(newText), node);
     } else {
       node.nodeValue = newText;
     }
