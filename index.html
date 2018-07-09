@@ -34,10 +34,26 @@
     window.test = function(Component, render) {
       const template = document.querySelector('script[type="text/template"]');
       @Component({
-        name: 'my-comp',
-        template: '<div>this is sub component<i>{time}</i></div>'
+        name: 'sub-sub-component',
+        template: '<div>my subsubsubsu compoennt {aaa} </div>'
+      })
+      class MySubSubComponent {
+        aaa = 'aaaaaaaaaaa';
+      }
+      @Component({
+        name: 'sub-comp',
+        props: {
+          title: String
+        },
+        components: {
+          'my-sub-sub-component': MySubSubComponent
+        },
+        template: '<div>------this is sub component<i>{time}</i><my-sub-sub-component />------</div>'
       })
       class MySubComp {
+        constructor(props) {
+          console.log(44, props);
+        }
         time = Date.now();
       }
       @Component({

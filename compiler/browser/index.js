@@ -1,12 +1,13 @@
 import parseNode from './parseNode.js';
 import templateToElement from './templateToElement.js';
 
-export default function compile(node) {
+export default function compile(name, node) {
   if (typeof node === 'string') {
     node = templateToElement(node);
   }
   if (node.nodeType !== 1) return;
-  const meta = parseNode(node);
+  let meta = parseNode(node) || {};
+  node.setAttribute('data-component', name);
   meta.template = node.outerHTML;
   node = null;
   return meta;
