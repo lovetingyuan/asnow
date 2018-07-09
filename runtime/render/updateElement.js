@@ -1,13 +1,13 @@
 import updateNode from './updateNode.js';
 
-function getStyle(binding, state) {
+function getStyle(binding) {
   let style = '';
   let constant = '';
   if (Array.isArray(binding)) {
     constant = binding[1];
-    style = binding[0].call(state);
+    style = binding[0].call(this);
   } else {
-    style = binding.call(state);
+    style = binding.call(this);
   }
   if (Array.isArray(style)) {
     return style.join('') + constant;
@@ -20,14 +20,14 @@ function getStyle(binding, state) {
   return style + constant;
 }
 
-function getClass(binding, state) {
+function getClass(binding) {
   let className = '';
   let constant = '';
   if (Array.isArray(binding)) {
     constant = ' ' + binding[1];
-    className = binding[0].call(state);
+    className = binding[0].call(this);
   } else {
-    className = binding.call(state);
+    className = binding.call(this);
   }
   if (Array.isArray(className)) {
     return className.join(' ') + constant;
@@ -40,19 +40,16 @@ function getClass(binding, state) {
   return className + constant;
 }
 
-export default function updateElement(node, meta, state) {
-  const { nodes, bindings, events, name } = meta;
-  if (name) {
-    node.setAttribute('data-component', name);
-  }
+export default function updateElement(node, meta) {
+  const { nodes, bindings, events } = meta;
   bindings && Object.keys(bindings).forEach(attrName => {
     let newAttrValue;
     if (attrName === 'style') {
-      newAttrValue = getStyle(bindings.style, state);
+      newAttrValue = getStyle.call(this, bindings.style);
     } else if (attrName === 'class') {
-      newAttrValue = getClass(bindings.class, state);
+      newAttrValue = getClass.call(this, bindings.class);
     } else {
-      newAttrValue = bindings[attrName].call(state);
+      newAttrValue = bindings[attrName].call(this);
     }
     if (node.getAttribute(attrName) !== newAttrValue) {
       node.setAttribute(attrName, newAttrValue);
@@ -62,9 +59,9 @@ export default function updateElement(node, meta, state) {
     const eventNames = node.__events__ = Object.keys(events);
     eventNames.forEach(eventName => {
       const event = events[eventName];
-      node.addEventListener(eventName, function(e) {
+      node.addEventListener(eventName, e => {
         const args = event.args || [];
-        event.handler.call(state).call(state, e, ...args.map(arg => arg.call(state)));
+        event.handler.call(this).call(this, e, ...args.map(arg => arg.call(this)));
       });
     });
   }
@@ -77,7 +74,7 @@ export default function updateElement(node, meta, state) {
         nodeIndex += increment[index];
       }
     });
-    const count = updateNode(children[nodeIndex], nodes[metaIndex], state);
+    const count = updateNode.call(this, children[nodeIndex], nodes[metaIndex]);
     if (count) {
       increment[metaIndex] = count - 1;
     }

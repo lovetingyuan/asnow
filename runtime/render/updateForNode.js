@@ -1,18 +1,16 @@
 import updateElement from './updateElement.js';
 
-export default function updateForNode(node, meta, state) {
+export default function updateForNode(node, meta) {
   const parent = node.parentNode;
   const condition = meta.directives.if;
-  const newScope = {  __proto__: state };
+  const newScope = {  __proto__: this };
   const { key, value: valueName, index: indexName } = meta.directives.for;
-  let list = meta.directives.for.list.call(state);
-  if (condition) {
-    list = list.filter((v, i) => {
-      newScope[valueName] = v;
-      indexName && (newScope[indexName] = i);
-      return condition.call(newScope);
-    });
-  }
+  let list = meta.directives.for.list.call(this);
+  condition && (list = list.filter((v, i) => {
+    newScope[valueName] = v;
+    indexName && (newScope[indexName] = i);
+    return condition.call(newScope);
+  }));
   const length = list.length;
   const keys = [];
   if (node.nodeType === 8) {
@@ -22,7 +20,7 @@ export default function updateForNode(node, meta, state) {
       newScope[valueName] = list[index];
       indexName && (newScope[indexName] = index);
       let newNode = meta.element.cloneNode(true);
-      updateElement(newNode, meta, newScope);
+      updateElement.call(newScope, newNode, meta);
       if (!index) {
         newNode.__length__ = length;
         if (key) {
@@ -54,7 +52,7 @@ export default function updateForNode(node, meta, state) {
       for (let index = 0, len = Math.min(preLength, length); index < len; index++) {
         newScope[valueName] = list[index];
         indexName && (newScope[indexName] = index);
-        updateElement(currentNode, meta, newScope);
+        updateElement.call(newScope, currentNode, meta);
         !index && (currentNode.__length__ = length);
         currentNode = currentNode.nextSibling;
       }
@@ -63,7 +61,7 @@ export default function updateForNode(node, meta, state) {
           newScope[valueName] = list[index];
           indexName && (newScope[indexName] = index);
           let newNode = meta.element.cloneNode(true);
-          updateElement(newNode, meta, newScope);
+          updateElement.call(newScope, newNode, meta);
           currentNode ? parent.insertBefore(newNode, currentNode) : parent.appendChild(newNode);
         }
       } else if (preLength > length) {
@@ -99,7 +97,7 @@ export default function updateForNode(node, meta, state) {
         } else {
           newNode = meta.element.cloneNode(true);
         }
-        updateElement(newNode, meta, newScope);
+        updateElement.call(newScope, newNode, meta);
         if (!index) {
           newNode.__length__ = length;
           newNode.__keys__ = newKeys;

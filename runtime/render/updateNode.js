@@ -5,16 +5,16 @@ import updateForNode from './updateForNode.js';
 import updateComponent from './updateComponent.js';
 import templateToElement from '../../compiler/browser/templateToElement.js';
 
-export default function updateNode(node, meta, state) {
+export default function updateNode(node, meta) {
   if (meta.type === 'component') {
-    updateComponent(node, meta, state);
+    updateComponent.call(this, node, meta);
   } else if (meta.type === 'element') {
     if (meta.directives) {
       if (meta.directives.for) {
         if (!meta.element) {
           meta.element = templateToElement(meta.template);
         }
-        const len = updateForNode(node, meta, state);
+        const len = updateForNode.call(this, node, meta);
         if (len > 1) {
           return len;
         }
@@ -22,12 +22,12 @@ export default function updateNode(node, meta, state) {
         if (!meta.element) {
           meta.element = templateToElement(meta.template);
         }
-        updateIfNode(node, meta, state);
+        updateIfNode.call(this, node, meta);
       }
     } else {
-      updateElement(node, meta, state);
+      updateElement.call(this, node, meta);
     }
   } else if (meta.type === 'text') {
-    updateTextNode(node, meta, state);
+    updateTextNode.call(this, node, meta);
   }
 }

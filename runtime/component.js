@@ -17,13 +17,12 @@ import updateNode from './render/updateNode.js';
 // class MyComponent {}
 
 function Component(meta) {
-  const {name, style, props, template, components} = meta;
+  const {name, style, props = {}, template, components = {}} = meta;
   // TODO check name and template required
-  const compileMeta = compile(template);
-  compileMeta.components = components;
+  const compileMeta = compile(name, template);
   return function (target) {
     target.prototype.render = function render() {
-      updateNode(this.$dom, compileMeta, this);
+      updateNode.call(this, this.$dom, compileMeta);
     };
     Object.defineProperties(target, {
       componentName: {
@@ -34,6 +33,9 @@ function Component(meta) {
       },
       props: {
         value: props
+      },
+      components: {
+        value: components
       }
     });
   };
