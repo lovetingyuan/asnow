@@ -3,7 +3,7 @@ import getId from '../../utils/getId.js';
 import vms from './componentVms.js';
 import templateToElement from '../../compiler/browser/templateToElement.js';
 
-export default function renderComponent(node, Component, props = {}) {
+export default function renderComponent(Component, props = {}) {
   if (!Component.meta.element) {
     Component.meta.element = templateToElement(Component.meta.template);
   }
@@ -24,5 +24,5 @@ export default function renderComponent(node, Component, props = {}) {
     }
   });
   updateElement.call(vm, newNode, Component.meta);
-  node.parentNode.replaceChild(newNode, node);
+  return newNode;
 }
