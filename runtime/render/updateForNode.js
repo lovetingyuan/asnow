@@ -1,6 +1,9 @@
 import updateElement from './updateElement.js';
+import getNewProps from './getNewProps.js';
+import renderComponent from './renderComponent.js';
+import vms from './componentVms.js';
 
-export default function updateForNode(node, meta) {
+export default function updateForNode(node, meta, Component) {
   const parent = node.parentNode;
   const condition = meta.directives.if;
   const newScope = {  __proto__: this };
@@ -15,35 +18,44 @@ export default function updateForNode(node, meta) {
   const keys = [];
   if (node.nodeType === 8) {
     if (!length) return;
-    let next = node.nextSibling;
     for (let index = 0; index < length; index++) {
       newScope[valueName] = list[index];
       indexName && (newScope[indexName] = index);
-      let newNode = meta.element.cloneNode(true);
-      updateElement.call(newScope, newNode, meta);
+      let newNode;
+      if (Component) {
+        const props = getNewProps.call(newScope, meta.bindings, meta.props, Component.props);
+        newNode = renderComponent(Component, props);
+      } else {
+        newNode = meta.element.cloneNode(true);
+        updateElement.call(newScope, newNode, meta);
+      }
+      parent.insertBefore(newNode, node);
       if (!index) {
         newNode.__length__ = length;
         if (key) {
           keys.push(key.call(newScope));
           newNode.__keys__ = keys;
         }
-        parent.replaceChild(newNode, node);
       } else {
         key && keys.push(key.call(newScope));
-        if (next) {
-          parent.insertBefore(newNode, next);
-        } else {
-          parent.appendChild(newNode);
-        }
       }
     }
+    parent.removeChild(node);
   } else {
     if (!length) {
-      let len = node.__length__ - 1;
-      while(len--) {
-        parent.removeChild(node.nextSibling);
+      for (let i = 0, len = node.__length__; i < len; i++) {
+        const nodeToRemove = node.nextSibling;
+        if (Component) {
+          const vm = vms.get(nodeToRemove.__vmid__);
+          Object.defineProperty(vm, '$destroy', {value: true});
+          vms.delete(nodeToRemove.__vmid__);
+        }
+        if (i === len - 1) {
+          parent.replaceChild(document.createComment('for'), node);
+        } else {
+          parent.removeChild(nodeToRemove);
+        }
       }
-      parent.replaceChild(document.createComment('for'), node);
       return;
     }
     if (!key) { // default reuse each node one by one
@@ -52,7 +64,14 @@ export default function updateForNode(node, meta) {
       for (let index = 0, len = Math.min(preLength, length); index < len; index++) {
         newScope[valueName] = list[index];
         indexName && (newScope[indexName] = index);
-        updateElement.call(newScope, currentNode, meta);
+        if (Component) {
+          const props = getNewProps.call(newScope, meta.bindings, meta.props, Component.props);
+          const vm = vms.get(currentNode.__vmid__);
+          Object.assign(vm.$props, props);
+          updateElement.call(vm, currentNode, Component.meta);
+        } else {
+          updateElement.call(newScope, currentNode, meta);
+        }
         !index && (currentNode.__length__ = length);
         currentNode = currentNode.nextSibling;
       }
@@ -60,14 +79,26 @@ export default function updateForNode(node, meta) {
         for (let index = preLength; index < length; index++) {
           newScope[valueName] = list[index];
           indexName && (newScope[indexName] = index);
-          let newNode = meta.element.cloneNode(true);
-          updateElement.call(newScope, newNode, meta);
+          let newNode;
+          if (Component) {
+            const props = getNewProps.call(newScope, meta.bindings, meta.props, Component.props);
+            newNode = renderComponent(Component, props);
+          } else {
+            newNode = meta.element.cloneNode(true);
+            updateElement.call(newScope, newNode, meta);
+          }
           currentNode ? parent.insertBefore(newNode, currentNode) : parent.appendChild(newNode);
         }
       } else if (preLength > length) {
         const lastNode = currentNode.previousSibling;
         for (let i = length; i < preLength; i++) {
-          parent.removeChild(lastNode.nextSibling);
+          const nodeToRemove = lastNode.nextSibling;
+          if (Component) {
+            const vm = vms.get(nodeToRemove.__vmid__);
+            Object.defineProperty(vm, '$destroy', {value: true});
+            vms.delete(nodeToRemove.__vmid__);
+          }
+          parent.removeChild(nodeToRemove);
         }
       }
     } else { // or reuse node by its uniq key
@@ -94,10 +125,23 @@ export default function updateForNode(node, meta) {
         let newNode = preNodes[newKey];
         if (newNode) {
           preNodes[newKey] = null;
+          if (Component) {
+            const props = getNewProps.call(newScope, meta.bindings, meta.props, Component.props);
+            const vm = vms.get(newNode.__vmid__);
+            Object.assign(vm.$props, props);
+            updateElement.call(vm, newNode, Component.meta);
+          } else {
+            updateElement.call(newScope, newNode, meta);
+          }
         } else {
-          newNode = meta.element.cloneNode(true);
+          if (Component) {
+            const props = getNewProps.call(this, meta.bindings, meta.props, Component.props);
+            newNode = renderComponent(Component, props);
+          } else {
+            newNode = meta.element.cloneNode(true);
+            updateElement.call(newScope, newNode, meta);
+          }
         }
-        updateElement.call(newScope, newNode, meta);
         if (!index) {
           newNode.__length__ = length;
           newNode.__keys__ = newKeys;
@@ -105,8 +149,14 @@ export default function updateForNode(node, meta) {
         currentNode ? parent.insertBefore(newNode, currentNode) : parent.appendChild(newNode);
       }
       Object.keys(preNodes).forEach(oldKey => {
-        let child = preNodes[oldKey];
-        child && parent.removeChild(child);
+        const nodeToRemove = preNodes[oldKey];
+        if (Component) {
+          const vm = vms.get(nodeToRemove.__vmid__);
+          Object.defineProperty(vm, '$destroy', {value: true});
+          vms.delete(nodeToRemove.__vmid__);
+        } else {
+          parent.removeChild(nodeToRemove);
+        }
       });
       preNodes = null;
     }
