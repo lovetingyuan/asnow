@@ -13,5 +13,7 @@ export default function updateForComponent(node, meta, Component) {
   }));
   const length = list.length;
   const keys = [];
-
+  if (node.nodeType === 8) {
+    if (!length) return;
+  }
 }
