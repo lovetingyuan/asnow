@@ -1,50 +1,27 @@
-import getId from '../../utils/getId.js';
-import templateToElement from '../../compiler/browser/templateToElement.js';
+import renderComponent from './renderComponent.js';
 import updateElement from './updateElement.js';
+import vms from './componentVms.js';
+import updateIfComponent from './updateIfComponent.js';
+import updateForComponent from './updateForComponent.js';
+import getProps from './getNewProps.js';
 
-const vms = new Map();
-
-export default function updateComponent(node, meta) {
-  const { bindings, props: staticProps, name: componentName } = meta;
-  const Component = this.constructor.components[componentName];
-  if (!Component) {
-    throw new Error(`not found sub component ${componentName} in ${this.constructor.componentName}`);
-  }
-  if (node.nodeType === 8) {
-    const props = {};
-    bindings && Object.keys(bindings).forEach(name => {
-      if (name in Component.props) {
-        props[name] = bindings[name].call(this);
-      } else {
-        delete bindings[name];
-      }
-    });
-    staticProps && Object.keys(staticProps).forEach(name => {
-      if (name in Component.props) {
-        props[name] = staticProps[name];
-      } else {
-        delete staticProps[name];
-      }
-    });
-    if (!Component.meta.element) {
-      Component.meta.element = templateToElement(Component.meta.template);
+export default function updateComponent(node, meta, Component) {
+  const { bindings, props: staticProps, directives } = meta;
+  if (directives) {
+    if (directives.for) {
+      return updateForComponent.call(this, node, meta, Component); // need to return the length
+    } else if (directives.if) {
+      updateIfComponent.call(this, node, meta, Component);
     }
-    const newNode = Component.meta.element.cloneNode(true);
-    const vm = new Component(props);
-    const id = getId();
-    vms.set(id, vm);
-    newNode.__vmid__ = id;
-    Object.defineProperty(vm, '$id', {value: id});
-    updateElement.call(vm, newNode, Component.meta);
-    node.parentNode.replaceChild(newNode, node);
   } else {
-    const props = {};
-    bindings && Object.keys(bindings).forEach(name => {
-      props[name] = bindings[name].call(this);
-    });
-    Object.assign(props, staticProps);
-    // TODO receive new props
-    const vm = vms.get(node.__vmid__);
-    updateElement.call(vm, node, Component.meta);
+    const props = getProps.call(this, bindings, staticProps, Component.props);
+    if (node.nodeType === 8) {
+      renderComponent(node, Component, props);
+    } else {
+      const vm = vms.get(node.__vmid__);
+      // TODO check props update
+      Object.assign(vm.$props, props);
+      updateElement.call(vm, node, Component.meta);
+    }
   }
 }

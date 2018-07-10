@@ -7,7 +7,17 @@ import templateToElement from '../../compiler/browser/templateToElement.js';
 
 export default function updateNode(node, meta) {
   if (meta.type === 'component') {
-    updateComponent.call(this, node, meta);
+    const Component = this.constructor.components[meta.name];
+    if (!Component) {
+      throw new Error(`not found sub component ${meta.name} in ${this.constructor.componentName}`);
+    }
+    if (!Component.meta.element) {
+      Component.meta.element = templateToElement(Component.meta.template);
+    }
+    const len = updateComponent.call(this, node, meta, Component);
+    if (len > 1) {
+      return len;
+    }
   } else if (meta.type === 'element') {
     if (meta.directives) {
       if (meta.directives.for) {
