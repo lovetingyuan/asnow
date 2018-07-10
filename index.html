@@ -26,12 +26,12 @@
         </li>
         <p @click="showMsg"> this is subtitle: {subTitle} </p>
       </ul>
-      <my-comp :title="title" a="aaa"></my-comp>
+      <my-comp #if="title > 0.5" :title="title" a="aaa"></my-comp>
       <button #if="title > 0.5" :title="'hhh' + title" @click="changeTitle">if title > 0.5</button>
     </div>
   </script>
   <script type="text/babel" data-plugins="proposal-decorators, proposal-class-properties">
-    window.test = function(Component, render) {
+    var test = function(Component, render) {
       const template = document.querySelector('script[type="text/template"]');
       @Component({
         name: 'sub-sub-component',
