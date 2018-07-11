@@ -5,8 +5,9 @@ export function parseComponentAttributes(node) {
   const attrs = [...node.attributes];
   const attrMap = {
     directives: {}, // start with '#', for now: #if, #for
-    bindings: {}, // binding props
+    // bindings: {}, // binding props
     props: {}, // static string props
+    events: {} // parent component event handler
   };
   for (let i = 0, len = attrs.length; i < len; i++) {
     const { nodeName: attrName, nodeValue: attrValue } = attrs[i];
@@ -21,7 +22,9 @@ export function parseComponentAttributes(node) {
       }
       default: {
         if (attrName[0] === ':') {
-          attrMap.bindings[attrName.substr(1)] = new Function(`with(this){return ${attrValue}}`);
+          attrMap.props[attrName.substr(1)] = new Function(`with(this){return ${attrValue}}`);
+        } else if (attrName[0] === '@') {
+          attrMap.events[attrName.substr(1)] = parseEventExpression(attrValue);
         } else if (attrName[0] !== '#') {
           attrMap.props[attrName] = attrValue;
         }
@@ -33,13 +36,16 @@ export function parseComponentAttributes(node) {
   if (!Object.keys(attrMap.directives).length) {
     delete attrMap.directives;
   }
-  if (!Object.keys(attrMap.bindings).length) {
-    delete attrMap.bindings;
-  }
+  // if (!Object.keys(attrMap.bindings).length) {
+  //   delete attrMap.bindings;
+  // }
   if (!Object.keys(attrMap.props).length) {
     delete attrMap.props;
   }
-  if (attrMap.bindings || attrMap.directives || attrMap.props) {
+  if (!Object.keys(attrMap.events).length) {
+    delete attrMap.events;
+  }
+  if (attrMap.bindings || attrMap.directives || attrMap.props || attrMap.events) {
     return attrMap;
   }
 }

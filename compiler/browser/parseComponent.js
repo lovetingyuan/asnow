@@ -14,8 +14,11 @@ export default function parseComponent(node) {
     if (attrMap.directives) {
       meta.directives = attrMap.directives;
     }
-    if (attrMap.bindings) {
-      meta.bindings = attrMap.bindings;
+    // if (attrMap.bindings) {
+    //   meta.bindings = attrMap.bindings;
+    // }
+    if (attrMap.events) {
+      meta.events = attrMap.events;
     }
   }
   node.parentNode.replaceChild(document.createComment(componentName), node);
