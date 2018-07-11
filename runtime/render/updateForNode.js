@@ -24,7 +24,7 @@ export default function updateForNode(node, meta, Component) {
       let newNode;
       if (Component) {
         const props = getNewProps.call(newScope, meta.bindings, meta.props, Component.props);
-        newNode = renderComponent(Component, props);
+        newNode = renderComponent.call(newScope, Component, props);
       } else {
         newNode = meta.element.cloneNode(true);
         updateElement.call(newScope, newNode, meta);
@@ -82,7 +82,7 @@ export default function updateForNode(node, meta, Component) {
           let newNode;
           if (Component) {
             const props = getNewProps.call(newScope, meta.bindings, meta.props, Component.props);
-            newNode = renderComponent(Component, props);
+            newNode = renderComponent.call(newScope, Component, props);
           } else {
             newNode = meta.element.cloneNode(true);
             updateElement.call(newScope, newNode, meta);
@@ -135,8 +135,8 @@ export default function updateForNode(node, meta, Component) {
           }
         } else {
           if (Component) {
-            const props = getNewProps.call(this, meta.bindings, meta.props, Component.props);
-            newNode = renderComponent(Component, props);
+            const props = getNewProps.call(newScope, meta.bindings, meta.props, Component.props);
+            newNode = renderComponent.call(newScope, Component, props);
           } else {
             newNode = meta.element.cloneNode(true);
             updateElement.call(newScope, newNode, meta);
@@ -150,6 +150,7 @@ export default function updateForNode(node, meta, Component) {
       }
       Object.keys(preNodes).forEach(oldKey => {
         const nodeToRemove = preNodes[oldKey];
+        if (!nodeToRemove) return;
         if (Component) {
           const vm = vms.get(nodeToRemove.__vmid__);
           Object.defineProperty(vm, '$destroy', {value: true});

@@ -16,7 +16,7 @@ export default function updateComponent(node, meta, Component) {
   } else {
     const props = getProps.call(this, bindings, staticProps, Component.props);
     if (node.nodeType === 8) {
-      const newNode = renderComponent(Component, props);
+      const newNode = renderComponent.call(this, Component, props);
       node.parentNode.replaceChild(newNode, node);
     } else {
       const vm = vms.get(node.__vmid__);

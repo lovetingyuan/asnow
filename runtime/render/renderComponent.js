@@ -19,8 +19,11 @@ export default function renderComponent(Component, props = {}) {
     $props: {
       value: props
     },
-    $dom: {
+    $el: {
       value: newNode
+    },
+    $parent: {
+      value: this
     }
   });
   updateElement.call(vm, newNode, Component.meta);
