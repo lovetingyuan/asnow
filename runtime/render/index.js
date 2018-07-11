@@ -1,8 +1,8 @@
-import renderComponent from './renderComponent.js';
+import component from './updateComponent.js';
 
 export default function render(Component, container) {
   const node = document.createComment('');
   container.appendChild(node);
-  const newNode = renderComponent.call(null, Component);
+  const newNode = component.create.call(null, Component);
   container.replaceChild(newNode, node);
 }

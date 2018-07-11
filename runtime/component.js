@@ -28,9 +28,18 @@ function Component(meta) {
   });
   const compileMeta = compile(name, template);
   return function (target) {
-    target.prototype.render = function render() {
-      updateNode.call(this, this.$el, compileMeta);
-    };
+    Object.assign(target.prototype, {
+      $render() {
+        updateNode.call(this, this.$el, compileMeta);
+      },
+      $emit(eventName, ...args) {
+        console.log(compileMeta);
+        const parentVm = this.$parent;
+        if (parentVm && typeof parentVm[eventName] === 'function') {
+          return parentVm[eventName](...args);
+        }
+      }
+    });
     Object.defineProperties(target, {
       componentName: {
         value: name

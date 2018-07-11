@@ -29,6 +29,7 @@ export default function parseElement(element) {
     if (attrMap.directives) {
       meta.directives = attrMap.directives;
       meta.template = element.outerHTML;
+      meta.element = element.cloneNode(true);
       element.parentNode.replaceChild(document.createComment(''), element);
     }
     if (attrMap.bindings) {

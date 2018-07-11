@@ -8,7 +8,7 @@ var test = function(Component, render) {
     template: `
       <li :style="{'text-decoration': done ? 'line-through' : ''}" style="margin-top: 10px;">
         <span @click="changeStatus"> {$props.index + 1 }: {$props.text} </span>
-        <i style="cursor: pointer" @click="remove">❌</i>
+        <i style="cursor: pointer" @click="onRemove">❌</i>
       </li>
     `
   })
@@ -18,10 +18,10 @@ var test = function(Component, render) {
     }
     changeStatus() {
       this.done = !this.done;
-      this.render();
+      this.$render();
     }
-    remove() {
-
+    onRemove() {
+      this.$emit('remove', this.$props.index);
     }
   }
 
@@ -33,7 +33,7 @@ var test = function(Component, render) {
       <input type="text" autofocus>
       <input type="button" value="add" @click="addEvent">
       <ul>
-        <list-item #for="event, index of events by index" :index="index" :text="event.text"></list-item>
+        <list-item #for="event, index of events by index" @remove="removeEvent" :index="index" :text="event.text"></list-item>
       </ul>
     </div>
     `,
@@ -43,12 +43,15 @@ var test = function(Component, render) {
     events = [{
       text: 'first event',
     }];
+    removeEvent(index) {
+      console.log(9999, index);
+    }
     addEvent() {
       const input = this.$el.querySelector('input[type="text"]');
       const text = input.value.trim();
       if (text) {
         this.events.push({text});
-        this.render();
+        this.$render();
         input.value = '';
       }
     }
