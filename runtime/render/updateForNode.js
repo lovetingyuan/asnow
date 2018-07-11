@@ -44,9 +44,6 @@ export default function updateForNode(node, meta, Component) {
         const nodeToRemove = node.nextSibling;
         if (Component) {
           component.remove(nodeToRemove);
-          // const vm = vms.get(nodeToRemove.__vmid__);
-          // Object.defineProperty(vm, '$destroy', {value: true});
-          // vms.delete(nodeToRemove.__vmid__);
         }
         if (i === len - 1) {
           parent.replaceChild(document.createComment('for'), node);
@@ -64,10 +61,6 @@ export default function updateForNode(node, meta, Component) {
         indexName && (newScope[indexName] = index);
         if (Component) {
           component.update.call(newScope, currentNode, meta, Component);
-          // const props = getNewProps.call(newScope, meta.props, Component.props);
-          // const vm = vms.get(currentNode.__vmid__);
-          // Object.assign(vm.$props, props);
-          // updateElement.call(vm, currentNode, Component.meta);
         } else {
           updateElement.call(newScope, currentNode, meta);
         }
@@ -81,7 +74,6 @@ export default function updateForNode(node, meta, Component) {
           let newNode;
           if (Component) {
             newNode = component.create.call(newScope, meta, Component);
-            // newNode = renderComponent.call(newScope, Component, meta);
           } else {
             newNode = meta.element.cloneNode(true);
             updateElement.call(newScope, newNode, meta);
@@ -94,9 +86,6 @@ export default function updateForNode(node, meta, Component) {
           const nodeToRemove = lastNode.nextSibling;
           if (Component) {
             component.remove(nodeToRemove);
-            // const vm = vms.get(nodeToRemove.__vmid__);
-            // Object.defineProperty(vm, '$destroy', {value: true});
-            // vms.delete(nodeToRemove.__vmid__);
           }
           parent.removeChild(nodeToRemove);
         }
@@ -127,17 +116,12 @@ export default function updateForNode(node, meta, Component) {
           preNodes[newKey] = null;
           if (Component) {
             component.update.call(newScope, newNode, meta, Component);
-            // const props = getNewProps.call(newScope, meta.props, Component.props);
-            // const vm = vms.get(newNode.__vmid__);
-            // Object.assign(vm.$props, props);
-            // updateElement.call(vm, newNode, Component.meta);
           } else {
             updateElement.call(newScope, newNode, meta);
           }
         } else {
           if (Component) {
             newNode = component.create.call(newScope, meta, Component);
-            // newNode = renderComponent.call(newScope, Component, meta);
           } else {
             newNode = meta.element.cloneNode(true);
             updateElement.call(newScope, newNode, meta);
@@ -154,9 +138,6 @@ export default function updateForNode(node, meta, Component) {
         if (!nodeToRemove) return;
         if (Component) {
           component.remove(nodeToRemove);
-          // const vm = vms.get(nodeToRemove.__vmid__);
-          // Object.defineProperty(vm, '$destroy', {value: true});
-          // vms.delete(nodeToRemove.__vmid__);
         } else {
           parent.removeChild(nodeToRemove);
         }
