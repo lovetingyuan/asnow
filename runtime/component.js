@@ -19,10 +19,17 @@ import updateNode from './render/updateNode.js';
 function Component(meta) {
   const {name, style, props = {}, template, components = {}} = meta;
   // TODO check name and template required
+  Object.keys(components).forEach(componentName => {
+    const componentNames = componentName.split('').map((v, i) => {
+      return v.toUpperCase() === v ? ((i ? '-' : '') + v.toLowerCase()) : v;
+    }).join('');
+    components[componentNames] = components[componentName];
+    delete components[componentName];
+  });
   const compileMeta = compile(name, template);
   return function (target) {
     target.prototype.render = function render() {
-      updateNode.call(this, this.$dom, compileMeta);
+      updateNode.call(this, this.$el, compileMeta);
     };
     Object.defineProperties(target, {
       componentName: {

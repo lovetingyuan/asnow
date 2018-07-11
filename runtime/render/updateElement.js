@@ -14,8 +14,8 @@ function getStyle(binding) {
   }
   if (style.constructor === Object) {
     return Object.keys(style).map(name => {
-      return name + ':' + style[name];
-    }).join(';') + constant;
+      return style[name] ? (`${name}: ${style[name]};`) : '';
+    }).join('') + constant;
   }
   return style + constant;
 }
