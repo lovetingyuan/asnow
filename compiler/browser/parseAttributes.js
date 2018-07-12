@@ -87,7 +87,6 @@ export function parseElementAttributes(element) {
         break;
       }
       default: {
-        console.log(attrName);
         if (attrName[0] === ':') {
           if (attrName === ':style') {
             bindStyle = attrValue;

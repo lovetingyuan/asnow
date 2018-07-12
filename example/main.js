@@ -1,24 +1,36 @@
 var test = function(Component, render) {
   @Component({
+    name: 'empty-str',
+    template: '<p>no event</p>'
+  })
+  class EmptyStr {}
+
+  @Component({
     name: 'list-item',
     props: {
       text: String,
-      id: Number
+      id: Number,
+      done: Boolean
     },
     template: `
       <li :style="{'text-decoration': done ? 'line-through' : ''}" style="margin-top: 10px;">
         <span @click="changeStatus"> {$props.text} </span>
         <i style="cursor: pointer" @click="onRemove">❌</i>
+        <ul>
+          <li #for="detail of details" #if="detail.length > 4">{detail}</li>
+        </ul>
       </li>
     `
   })
   class ListItem {
-    constructor(props) {
-      this.done = !!props.done;
+    get done() {
+      return !!this.$props.done;
+    }
+    get details() {
+      return this.$props.text.split(' ');
     }
     changeStatus() {
-      this.done = !this.done;
-      this.$render();
+      this.$emit('change-status', this.$props.id);
     }
     onRemove() {
       this.$emit('remove', this.$props.id);
@@ -33,24 +45,32 @@ var test = function(Component, render) {
       <input type="text" autofocus>
       <input type="button" value="add" @click="addEvent">
       <ol>
-        <list-item #for="event of events" @remove="removeEvent" :id="event.id" :text="event.text"></list-item>
+        <list-item
+          #for="event of events"
+          @remove="removeEvent"
+          @change-status="switchDone"
+          :done="event.done"
+          :id="event.id"
+          :text="event.text">
+        </list-item>
+        <empty-str #if="!events.length"></empty-str>
       </ol>
     </div>
     `,
-    components: { ListItem }
+    components: { ListItem, EmptyStr }
   })
   class MyComp {
     events = [{
-      text: 'first event',
+      text: '1111first event',
       id: 0
     }, {
-      text: '2222222222',
+      text: '222222 2222',
       id: 1
     }, {
-      text: '33333333333333333',
+      text: '33333333 3333 33333',
       id: 2
     }, {
-      text: '44444444444444444444',
+      text: '444444 4444 444444 4444',
       id: 3
     }, {
       text: '5555555555555',
@@ -60,12 +80,13 @@ var test = function(Component, render) {
       id: 5
     }];
     removeEvent(id) {
-      console.log(1111111111111, this.events);
       this.events = this.events.filter(v => v.id !== id);
-      // const index = this.events.findIndex(v => v.id == id);
-      // this.events.splice(index, 1);
       this.$render();
-      console.log(22222222222, this.events);
+    }
+    switchDone(id) {
+      const event = this.events.find(v => v.id === id);
+      event.done = !event.done;
+      this.$render();
     }
     addEvent() {
       const input = this.$el.querySelector('input[type="text"]');
@@ -77,6 +98,5 @@ var test = function(Component, render) {
       }
     }
   }
-  console.log(MyComp);
   render(MyComp, document.getElementById('app'));
 };

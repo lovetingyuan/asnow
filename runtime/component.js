@@ -33,7 +33,6 @@ function Component(meta) {
         updateNode.call(this, this.$el, compileMeta);
       },
       $emit(eventName, ...args) {
-        console.log(this, compileMeta);
         const parentVm = this.$parent;
         const handlerName = this.$events[eventName].handler;
         if (parentVm && typeof parentVm[handlerName] === 'function') {
