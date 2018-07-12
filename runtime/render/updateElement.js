@@ -61,7 +61,11 @@ export default function updateElement(node, meta) {
       const event = events[eventName];
       node.addEventListener(eventName, e => {
         const args = event.args || [];
-        event.handler.call(this).call(this, e, ...args.map(arg => arg.call(this)));
+        const handlerName = event.handler;
+        if (typeof this[handlerName] !== 'function') {
+          throw new Error(`event handler ${handlerName} not found in Component ${this.constructor.componentName}`);
+        }
+        return this[handlerName](e, ...args.map(arg => arg.call(this)));
       });
     });
   }
@@ -75,7 +79,7 @@ export default function updateElement(node, meta) {
       }
     });
     const count = updateNode.call(this, children[nodeIndex], nodes[metaIndex]);
-    if (count) {
+    if (count > 1) {
       increment[metaIndex] = count - 1;
     }
   });
