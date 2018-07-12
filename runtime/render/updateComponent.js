@@ -1,5 +1,3 @@
-import updateElement from './updateElement.js';
-
 const vms = new Map;
 window.vms = vms;
 
@@ -21,7 +19,7 @@ function getProps(props, componentProps) {
   return newProps;
 }
 
-function createComponent(meta, Component) {
+function createComponent(meta, Component, context) {
   // if (meta.props) {
   //   if (meta.props.__proto__ === Object.prototype) {
   //     const defaultProps = {};
@@ -49,13 +47,14 @@ function createComponent(meta, Component) {
       value: newNode
     },
     $parent: {
-      value: this
+      value: context || this
     },
     $events: {
       value: meta && meta.events
     }
   });
-  updateElement.call(vm, newNode, Component.meta);
+  // updateElement.call(vm, newNode, Component.meta);
+  vm.$render();
   return newNode;
 }
 
@@ -64,7 +63,7 @@ function updateComponent(node, meta, Component) {
   // TODO check props update
   const props = getProps.call(this, meta.props, Component.props);
   Object.assign(vm.$props, props);
-  updateElement.call(vm, node, Component.meta);
+  vm.$render();
 }
 
 function removeComponent(node) {

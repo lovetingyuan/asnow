@@ -25,7 +25,7 @@ export default function updateForNode(node, meta, Component) {
       indexName && (newScope[indexName] = index);
       let newNode;
       if (Component) {
-        newNode = createComponent.call(newScope, meta, Component);
+        newNode = createComponent.call(newScope, meta, Component, this);
       } else {
         newNode = meta.element.cloneNode(true);
         updateElement.call(newScope, newNode, meta);
@@ -58,7 +58,6 @@ export default function updateForNode(node, meta, Component) {
       let currentNode = node;
       const preLength = node.__length__;
       for (let index = 0, len = Math.min(preLength, length); index < len; index++) {
-        const newScope = {__proto__: this};
         newScope[valueName] = list[index];
         indexName && (newScope[indexName] = index);
         if (Component) {
@@ -71,12 +70,11 @@ export default function updateForNode(node, meta, Component) {
       }
       if (preLength < length) {
         for (let index = preLength; index < length; index++) {
-          const newScope = {__proto__: this};
           newScope[valueName] = list[index];
           indexName && (newScope[indexName] = index);
           let newNode;
           if (Component) {
-            newNode = createComponent.call(newScope, meta, Component);
+            newNode = createComponent.call(newScope, meta, Component, this);
           } else {
             newNode = meta.element.cloneNode(true);
             updateElement.call(newScope, newNode, meta);
@@ -124,7 +122,7 @@ export default function updateForNode(node, meta, Component) {
           }
         } else {
           if (Component) {
-            newNode = createComponent.call(newScope, meta, Component);
+            newNode = createComponent.call(newScope, meta, Component, this);
           } else {
             newNode = meta.element.cloneNode(true);
             updateElement.call(newScope, newNode, meta);
