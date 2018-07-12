@@ -33,10 +33,11 @@ function Component(meta) {
         updateNode.call(this, this.$el, compileMeta);
       },
       $emit(eventName, ...args) {
-        console.log(compileMeta);
+        console.log(this, compileMeta);
         const parentVm = this.$parent;
-        if (parentVm && typeof parentVm[eventName] === 'function') {
-          return parentVm[eventName](...args);
+        const handlerName = this.$events[eventName].handler;
+        if (parentVm && typeof parentVm[handlerName] === 'function') {
+          return parentVm[handlerName](...args);
         }
       }
     });

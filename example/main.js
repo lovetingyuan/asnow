@@ -3,11 +3,11 @@ var test = function(Component, render) {
     name: 'list-item',
     props: {
       text: String,
-      index: Number
+      id: Number
     },
     template: `
       <li :style="{'text-decoration': done ? 'line-through' : ''}" style="margin-top: 10px;">
-        <span @click="changeStatus"> {$props.index + 1 }: {$props.text} </span>
+        <span @click="changeStatus"> {$props.text} </span>
         <i style="cursor: pointer" @click="onRemove">❌</i>
       </li>
     `
@@ -21,7 +21,7 @@ var test = function(Component, render) {
       this.$render();
     }
     onRemove() {
-      this.$emit('remove', this.$props.index);
+      this.$emit('remove', this.$props.id);
     }
   }
 
@@ -32,9 +32,9 @@ var test = function(Component, render) {
       <span>Event List({events.length}): </span>
       <input type="text" autofocus>
       <input type="button" value="add" @click="addEvent">
-      <ul>
-        <list-item #for="event, index of events by index" @remove="removeEvent" :index="index" :text="event.text"></list-item>
-      </ul>
+      <ol>
+        <list-item #for="event of events" @remove="removeEvent" :id="event.id" :text="event.text"></list-item>
+      </ol>
     </div>
     `,
     components: { ListItem }
@@ -42,15 +42,36 @@ var test = function(Component, render) {
   class MyComp {
     events = [{
       text: 'first event',
+      id: 0
+    }, {
+      text: '2222222222',
+      id: 1
+    }, {
+      text: '33333333333333333',
+      id: 2
+    }, {
+      text: '44444444444444444444',
+      id: 3
+    }, {
+      text: '5555555555555',
+      id: 4
+    }, {
+      text: '6666666666666666',
+      id: 5
     }];
-    removeEvent(index) {
-      console.log(9999, index);
+    removeEvent(id) {
+      console.log(1111111111111, this.events);
+      this.events = this.events.filter(v => v.id !== id);
+      // const index = this.events.findIndex(v => v.id == id);
+      // this.events.splice(index, 1);
+      this.$render();
+      console.log(22222222222, this.events);
     }
     addEvent() {
       const input = this.$el.querySelector('input[type="text"]');
       const text = input.value.trim();
       if (text) {
-        this.events.push({text});
+        this.events.push({text, id: Math.random()});
         this.$render();
         input.value = '';
       }

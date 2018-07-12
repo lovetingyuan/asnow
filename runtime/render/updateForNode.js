@@ -1,5 +1,9 @@
 import updateElement from './updateElement.js';
-import component from './updateComponent.js';
+import { 
+  createComponent,
+  updateComponent,
+  removeComponent
+} from './updateComponent.js';
 
 export default function updateForNode(node, meta, Component) {
   const parent = node.parentNode;
@@ -21,7 +25,7 @@ export default function updateForNode(node, meta, Component) {
       indexName && (newScope[indexName] = index);
       let newNode;
       if (Component) {
-        newNode = component.create.call(newScope, meta, Component);
+        newNode = createComponent.call(newScope, meta, Component);
       } else {
         newNode = meta.element.cloneNode(true);
         updateElement.call(newScope, newNode, meta);
@@ -40,27 +44,25 @@ export default function updateForNode(node, meta, Component) {
     parent.removeChild(node);
   } else {
     if (!length) {
-      for (let i = 0, len = node.__length__; i < len; i++) {
+      for (let i = 0, len = node.__length__ - 1; i < len; i++) {
         const nodeToRemove = node.nextSibling;
         if (Component) {
-          component.remove(nodeToRemove);
+          removeComponent(nodeToRemove);
         }
-        if (i === len - 1) {
-          parent.replaceChild(document.createComment('for'), node);
-        } else {
-          parent.removeChild(nodeToRemove);
-        }
+        parent.removeChild(nodeToRemove);
       }
+      parent.replaceChild(document.createComment('for'), node);
       return;
     }
     if (!key) { // default reuse each node one by one
       let currentNode = node;
       const preLength = node.__length__;
       for (let index = 0, len = Math.min(preLength, length); index < len; index++) {
+        const newScope = {__proto__: this};
         newScope[valueName] = list[index];
         indexName && (newScope[indexName] = index);
         if (Component) {
-          component.update.call(newScope, currentNode, meta, Component);
+          updateComponent.call(newScope, currentNode, meta, Component);
         } else {
           updateElement.call(newScope, currentNode, meta);
         }
@@ -69,11 +71,12 @@ export default function updateForNode(node, meta, Component) {
       }
       if (preLength < length) {
         for (let index = preLength; index < length; index++) {
+          const newScope = {__proto__: this};
           newScope[valueName] = list[index];
           indexName && (newScope[indexName] = index);
           let newNode;
           if (Component) {
-            newNode = component.create.call(newScope, meta, Component);
+            newNode = createComponent.call(newScope, meta, Component);
           } else {
             newNode = meta.element.cloneNode(true);
             updateElement.call(newScope, newNode, meta);
@@ -85,7 +88,7 @@ export default function updateForNode(node, meta, Component) {
         for (let i = length; i < preLength; i++) {
           const nodeToRemove = lastNode.nextSibling;
           if (Component) {
-            component.remove(nodeToRemove);
+            removeComponent(nodeToRemove);
           }
           parent.removeChild(nodeToRemove);
         }
@@ -115,13 +118,13 @@ export default function updateForNode(node, meta, Component) {
         if (newNode) {
           preNodes[newKey] = null;
           if (Component) {
-            component.update.call(newScope, newNode, meta, Component);
+            updateComponent.call(newScope, newNode, meta, Component);
           } else {
             updateElement.call(newScope, newNode, meta);
           }
         } else {
           if (Component) {
-            newNode = component.create.call(newScope, meta, Component);
+            newNode = createComponent.call(newScope, meta, Component);
           } else {
             newNode = meta.element.cloneNode(true);
             updateElement.call(newScope, newNode, meta);
@@ -137,7 +140,7 @@ export default function updateForNode(node, meta, Component) {
         const nodeToRemove = preNodes[oldKey];
         if (!nodeToRemove) return;
         if (Component) {
-          component.remove(nodeToRemove);
+          removeComponent(nodeToRemove);
         } else {
           parent.removeChild(nodeToRemove);
         }

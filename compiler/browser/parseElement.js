@@ -39,23 +39,8 @@ export default function parseElement(element) {
       meta.events = attrMap.events;
     }
   }
-  // if (attrMap && attrMap.directives) {
-  //   meta.template = element.outerHTML;
-  //   element.parentNode.replaceChild(document.createComment(''), element);
-  // }
   if (Object.keys(meta).length) {
     meta.type = 'element';
-    // if (meta.directives) {
-    //   if (meta.directives.if && meta.directives.for) {
-    //     meta.type = 'for-if';
-    //   } else if (meta.directives.if) {
-    //     meta.type = 'if';
-    //   } else if (meta.directives.for) {
-    //     meta.type = 'for';
-    //   }
-    // } else {
-    //   meta.type = 'element';
-    // }
     return meta;
   }
 }
