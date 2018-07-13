@@ -30,7 +30,13 @@ function Component(meta) {
   return function (target) {
     Object.assign(target.prototype, {
       $render() {
-        updateNode.call(this, this.$el, compileMeta);
+        Promise.resolve().then(() => {
+          if (!this.$destroy) {
+            updateNode.call(this, this.$el, compileMeta);
+          } else {
+            console.warn('Can not update destroyed component', this);
+          }
+        });
       },
       $emit(eventName, ...args) {
         const parentVm = this.$parent;

@@ -21,6 +21,6 @@ export default function parseComponent(node) {
       meta.events = attrMap.events;
     }
   }
-  node.parentNode.replaceChild(document.createComment(componentName), node);
+  node.parentNode.replaceChild(document.createComment(''), node);
   return meta;
 }

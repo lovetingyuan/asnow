@@ -29,6 +29,12 @@ var test = function(Component, render) {
     get details() {
       return this.$props.text.split(' ');
     }
+    // onReceiveProps(newProps) {
+    //   if (newProps.done !== this.$props.done) {
+    //     this.$props.done = newProps.done;
+    //     return true;
+    //   }
+    // }
     changeStatus() {
       this.$emit('change-status', this.$props.id);
     }
@@ -44,9 +50,14 @@ var test = function(Component, render) {
       <span>Event List({events.length}): </span>
       <input type="text" autofocus>
       <input type="button" value="add" @click="addEvent">
+      <span #for="type of filters">
+        <input type="radio" :id="type" name="filter" :value="type" @click="onFilter">
+        <label :for="type">{type}</label>
+      </span>
       <ol>
         <list-item
           #for="event of events"
+          #if="showEvent(event.done)"
           @remove="removeEvent"
           @change-status="switchDone"
           :done="event.done"
@@ -60,25 +71,14 @@ var test = function(Component, render) {
     components: { ListItem, EmptyStr }
   })
   class MyComp {
-    events = [{
-      text: '1111first event',
-      id: 0
-    }, {
-      text: '222222 2222',
-      id: 1
-    }, {
-      text: '33333333 3333 33333',
-      id: 2
-    }, {
-      text: '444444 4444 444444 4444',
-      id: 3
-    }, {
-      text: '5555555555555',
-      id: 4
-    }, {
-      text: '6666666666666666',
-      id: 5
-    }];
+    events = Array(10).fill().map((v, i) => {
+      return {
+        text: Array(10).fill(i + 1).join(''),
+        id: Math.random()
+      };
+    });
+    filters = ['all', 'todo', 'done'];
+    filterType = 'all';
     removeEvent(id) {
       this.events = this.events.filter(v => v.id !== id);
       this.$render();
@@ -95,6 +95,19 @@ var test = function(Component, render) {
         this.events.push({text, id: Math.random()});
         this.$render();
         input.value = '';
+      }
+    }
+    onFilter(e) {
+      this.filterType = e.target.value;
+      this.$render();
+    }
+    showEvent(done) {
+      if (this.filterType === 'done') {
+        return done;
+      } else if (this.filterType === 'todo') {
+        return !done;
+      } else {
+        return true;
       }
     }
   }
