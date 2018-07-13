@@ -51,7 +51,7 @@ export default function updateForNode(node, meta, Component) {
         }
         parent.removeChild(nodeToRemove);
       }
-      parent.replaceChild(document.createComment('for'), node);
+      parent.replaceChild(document.createComment(''), node);
       return;
     }
     if (!key) { // default reuse each node one by one

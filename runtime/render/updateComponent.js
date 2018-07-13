@@ -62,8 +62,15 @@ function updateComponent(node, meta, Component) {
   const vm = vms.get(node.__vmid__);
   // TODO check props update
   const props = getProps.call(this, meta.props, Component.props);
-  Object.assign(vm.$props, props);
-  vm.$render();
+  if (typeof vm.onReceiveProps === 'function') {
+    const update = vm.onReceiveProps(props);
+    if (update === true) {
+      vm.$render();
+    }
+  } else {
+    Object.assign(vm.$props, props);
+    vm.$render();
+  }
 }
 
 function removeComponent(node) {
