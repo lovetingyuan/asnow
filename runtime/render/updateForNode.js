@@ -8,7 +8,7 @@ import {
 export default function updateForNode(node, meta, Component) {
   const parent = node.parentNode;
   const condition = meta.directives.if;
-  const newScope = {  __proto__: this };
+  const newScope = {  __proto__: this, __for__: true };
   const { key, value: valueName, index: indexName } = meta.directives.for;
   let list = meta.directives.for.list.call(this);
   condition && (list = list.filter((v, i) => {
@@ -25,7 +25,7 @@ export default function updateForNode(node, meta, Component) {
       indexName && (newScope[indexName] = index);
       let newNode;
       if (Component) {
-        newNode = createComponent.call(newScope, meta, Component, this);
+        newNode = createComponent.call(newScope, meta, Component);
       } else {
         newNode = meta.element.cloneNode(true);
         updateElement.call(newScope, newNode, meta);
@@ -74,7 +74,7 @@ export default function updateForNode(node, meta, Component) {
           indexName && (newScope[indexName] = index);
           let newNode;
           if (Component) {
-            newNode = createComponent.call(newScope, meta, Component, this);
+            newNode = createComponent.call(newScope, meta, Component);
           } else {
             newNode = meta.element.cloneNode(true);
             updateElement.call(newScope, newNode, meta);
@@ -122,7 +122,7 @@ export default function updateForNode(node, meta, Component) {
           }
         } else {
           if (Component) {
-            newNode = createComponent.call(newScope, meta, Component, this);
+            newNode = createComponent.call(newScope, meta, Component);
           } else {
             newNode = meta.element.cloneNode(true);
             updateElement.call(newScope, newNode, meta);

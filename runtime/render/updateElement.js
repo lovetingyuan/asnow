@@ -65,7 +65,7 @@ export default function updateElement(node, meta) {
         if (typeof this[handlerName] !== 'function') {
           throw new Error(`event handler ${handlerName} not found in Component ${this.constructor.componentName}`);
         }
-        return this[handlerName](e, ...args.map(arg => arg.call(this)));
+        return this[handlerName].call(this.__for__ ? this.__proto__ : this, e, ...args.map(arg => arg.call(this)));
       });
     });
   }

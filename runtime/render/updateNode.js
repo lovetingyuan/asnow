@@ -9,7 +9,7 @@ export default function updateNode(node, meta) {
     case 'component': {
       const Component = this.constructor.components[meta.name];
       if (!Component) {
-        throw new Error(`not found sub component ${meta.name} in ${this.constructor.componentName}`);
+        throw new Error(`Not found sub component ${meta.name} in ${this.constructor.componentName}`);
       }
       if (meta.directives) {
         if (meta.directives.for) {

@@ -14,7 +14,7 @@ var test = function(Component, render) {
     },
     template: `
       <li :style="{'text-decoration': done ? 'line-through' : ''}" style="margin-top: 10px;">
-        <span @click="changeStatus"> {$props.text} </span>
+        <span @click="changeStatus">⏰ {$props.text} </span>
         <i style="cursor: pointer" @click="onRemove">❌</i>
         <ul>
           <li #for="detail of details" #if="detail.length > 4">{detail}</li>
@@ -47,7 +47,7 @@ var test = function(Component, render) {
     name: 'my-comp',
     template: `
     <div style="padding: 50px;">
-      <span>Event List({events.length}): </span>
+      <span>Event List({displayEvents.length} of {events.length}): </span>
       <input type="text" autofocus>
       <input type="button" value="add" @click="addEvent">
       <span #for="type of filters">
@@ -56,21 +56,33 @@ var test = function(Component, render) {
       </span>
       <ol>
         <list-item
-          #for="event of events"
-          #if="showEvent(event.done)"
+          #for="event of displayEvents"
           @remove="removeEvent"
           @change-status="switchDone"
           :done="event.done"
           :id="event.id"
           :text="event.text">
         </list-item>
-        <empty-str #if="!events.length"></empty-str>
+        <empty-str #if="!displayEvents.length"></empty-str>
       </ol>
     </div>
     `,
     components: { ListItem, EmptyStr }
   })
   class MyComp {
+    get displayEvents() {
+      switch(this.filterType) {
+        case 'done': {
+          return this.events.filter(v => v.done);
+        }
+        case 'todo': {
+          return this.events.filter(v => !v.done);
+        }
+        default: {
+          return this.events;
+        }
+      }
+    }
     events = Array(10).fill().map((v, i) => {
       return {
         text: Array(10).fill(i + 1).join(''),
@@ -84,8 +96,12 @@ var test = function(Component, render) {
       this.$render();
     }
     switchDone(id) {
-      const event = this.events.find(v => v.id === id);
-      event.done = !event.done;
+      const index = this.events.findIndex(v => v.id === id);
+      const event = this.events[index];
+      this.events[index] = {
+        ...event,
+        done: !event.done
+      };
       this.$render();
     }
     addEvent() {
@@ -100,15 +116,6 @@ var test = function(Component, render) {
     onFilter(e) {
       this.filterType = e.target.value;
       this.$render();
-    }
-    showEvent(done) {
-      if (this.filterType === 'done') {
-        return done;
-      } else if (this.filterType === 'todo') {
-        return !done;
-      } else {
-        return true;
-      }
     }
   }
   render(MyComp, document.getElementById('app'));
