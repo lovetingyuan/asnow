@@ -30,19 +30,19 @@ function Component(meta) {
   return function (target) {
     Object.assign(target.prototype, {
       $render() {
-        Promise.resolve().then(() => {
-          if (!this.$destroy) {
-            updateNode.call(this, this.$el, compileMeta);
-          } else {
-            console.warn('Can not update destroyed component', this);
-          }
-        });
+        if (!this.$destroy) {
+          updateNode.call(this, this.$el, compileMeta);
+        } else {
+          console.warn('Can not update destroyed component', this);
+        }
       },
       $emit(eventName, ...args) {
         const parentVm = this.$parent;
         const handlerName = this.$events[eventName].handler;
         if (parentVm && typeof parentVm[handlerName] === 'function') {
           return parentVm[handlerName](...args);
+        } else {
+          throw new Error(`Not found custom event ${eventName}:${handlerName}`);
         }
       }
     });

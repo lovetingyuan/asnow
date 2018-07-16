@@ -19,7 +19,7 @@ function getProps(props, componentProps) {
   return newProps;
 }
 
-function createComponent(meta, Component, context) {
+function createComponent(meta = {}, Component) {
   // if (meta.props) {
   //   if (meta.props.__proto__ === Object.prototype) {
   //     const defaultProps = {};
@@ -30,8 +30,9 @@ function createComponent(meta, Component, context) {
 
   //   }
   // }
-  const props = getProps.call(this, meta && meta.props, Component.props);
+  const props = getProps.call(this, meta.props, Component.props);
   const newNode = Component.meta.element.cloneNode(true);
+  const parent = this ? (this.__for__ ? this.__proto__ : this) : null;
   const vm = new Component(props);
   const id = getId();
   vms.set(id, vm);
@@ -47,13 +48,12 @@ function createComponent(meta, Component, context) {
       value: newNode
     },
     $parent: {
-      value: context || this
+      value: parent
     },
     $events: {
-      value: meta && meta.events
+      value: meta.events
     }
   });
-  // updateElement.call(vm, newNode, Component.meta);
   vm.$render();
   return newNode;
 }
