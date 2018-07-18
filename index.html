@@ -5,11 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>asnow</title>
-  <script src="./babel.min.js"></script>
+  <script>
+    navigator.serviceWorker.register('service-worker.js');
+  </script>
 </head>
 <body>
   <div id="app"></div>
-  <script type="text/babel" src="./example/main.js" data-plugins="proposal-decorators, proposal-class-properties, proposal-object-rest-spread"></script>
-  <script src="./example/index.js" type="module" async></script>
+  <script src="./example/src/index.js" type="module" async></script>
 </body>
 </html>
