@@ -20,7 +20,7 @@ export class TodoListReducer {
       return value;
     });
   }
-  @effect
+  // @effect
   async getList(url) {
     const list = await fetch(url).then(res => res.json());
     this.setList(list);
