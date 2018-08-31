@@ -32,6 +32,7 @@ export default function compile(name, node) {
  *   title: Function,
  *   style: [Function, String]
  *  },
+ *  events: {},
  *  directives: {
  *   if: bool,
  *   for: {
@@ -46,7 +47,12 @@ export default function compile(name, node) {
  * {
  *  type: 'component',
  *  directives: {},
- *  bindings: {},
+ *  events: {},
  *  props: {}
+ * }
+ * 
+ * {
+ *  type: 'text',
+ *  value: Function
  * }
  */

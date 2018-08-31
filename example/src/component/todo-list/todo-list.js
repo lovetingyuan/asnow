@@ -23,7 +23,7 @@ export default class MyComp {
       }
     }
   }
-  events = Array(10).fill().map((v, i) => {
+  events = Array(5).fill().map((v, i) => {
     return {
       text: Array(10).fill(i + 1).join(''),
       id: Math.random()
@@ -32,8 +32,9 @@ export default class MyComp {
   filters = ['all', 'todo', 'done'];
   filterType = 'all';
   removeEvent(id) {
-    this.events = this.events.filter(v => v.id !== id);
-    this.$render();
+    this.$render({
+      events: this.events.filter(v => v.id !== id)
+    });
   }
   switchDone(id) {
     const index = this.events.findIndex(v => v.id === id);
