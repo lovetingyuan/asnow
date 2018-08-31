@@ -29,7 +29,10 @@ function Component(meta) {
   const compileMeta = compile(name, template);
   return function (target) {
     Object.assign(target.prototype, {
-      $render() {
+      $render(newState) {
+        if (newState) {
+          Object.assign(this, newState);
+        }
         if (!this.$destroy) {
           updateNode.call(this, this.$el, compileMeta);
         } else {
