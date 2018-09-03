@@ -1,8 +1,18 @@
+/* eslint-disable */
 importScripts('node_modules/@babel/standalone/babel.min.js');
+importScripts('node_modules/requirejs/require.js');
+
+require.config({
+  baseUrl: '/',
+});
 
 self.addEventListener('install', function (event) {
+  require(['./es6-to-amd.js!./compiler/browser/index.js'], function(foo) {
+    self.compile = foo.default;
+  });
   event.waitUntil(self.skipWaiting());
 });
+
 self.addEventListener('activate', function (event) {
   event.waitUntil(self.clients.claim());
 });

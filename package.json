@@ -12,9 +12,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/standalone": "^7.0.0-beta.54",
+    "@babel/standalone": "^7.0.0",
     "babel-eslint": "^8.2.2",
-    "live-server": "^1.2.0"
+    "live-server": "^1.2.0",
+    "requirejs": "^2.3.6"
   },
   "dependencies": {
     "eslint": "^4.19.1",
