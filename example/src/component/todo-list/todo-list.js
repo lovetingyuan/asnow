@@ -1,4 +1,3 @@
-'use babel';
 import template from './todo-list.html';
 import Component from '../../../../runtime/component.js';
 import ListItem from '../list-item/index.js';

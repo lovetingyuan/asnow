@@ -1,2 +1,1 @@
-import v from './list-item.js';
-export default v;
+export default from './list-item.js';

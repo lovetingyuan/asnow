@@ -1,2 +1,1 @@
-import TodoList from './todo-list/index.js';
-export default TodoList;
+export default from './todo-list/index.js';

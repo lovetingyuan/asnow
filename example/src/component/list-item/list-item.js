@@ -1,4 +1,3 @@
-'use babel';
 import template from './list-item.html';
 import Component from '../../../../runtime/component.js';
 

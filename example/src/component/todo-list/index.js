@@ -1,3 +1,2 @@
-import v from './todo-list.js';
-export default v;
+export default from './todo-list.js';
 
