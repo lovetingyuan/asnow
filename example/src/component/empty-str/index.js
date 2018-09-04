@@ -1,4 +1,3 @@
-'use babel';
 import Component from '../../../../runtime/component.js';
 
 @Component({

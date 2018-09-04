@@ -1,5 +1,6 @@
 // import Cache from '../../utils/cache.js';
 import compile from '../../compiler/browser/index.js';
+import compile2 from '../../compiler/node/index.js';
 import updateNode from './render/updateNode.js';
 
 // @Component({
@@ -27,6 +28,8 @@ function Component(meta) {
     delete components[componentName];
   });
   const compileMeta = compile(name, template);
+  console.log('compileMeta', compileMeta);
+  console.log('newCompile', compile2(template));
   return function (target) {
     Object.assign(target.prototype, {
       $render(newState) {
