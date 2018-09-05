@@ -40,6 +40,5 @@ export default function parseComponent(node) {
     props,
     events,
     // children,
-    static: directives ? node : null
   };
 }

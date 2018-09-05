@@ -1,8 +1,7 @@
-import {relpaceWithComment} from './utils.js';
+const hasExpressReg = /[^\\]?\$\{.+?\}/;
+const blankReg = /\s{2,}/g;
 
 export default function parseText(node) {
-  const hasExpressReg = /[^\\]?\$\{.+?\}/;
-  const blankReg = /\s{2,}/g;
   if (hasExpressReg.test(node.value)) {
     // relpaceWithComment(node);
     return {

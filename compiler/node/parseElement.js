@@ -71,7 +71,7 @@ export default function parseElement(node) {
       bindings,
       events,
       children,
-      static: directives ? node : null
+      static: parse5.serialize(node)
     }
   }
 }
