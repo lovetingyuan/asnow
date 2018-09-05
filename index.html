@@ -7,11 +7,30 @@
   <title>asnow</title>
   <script src="./parser5.js"></script>
   <script>
-    navigator.serviceWorker.register('./service-worker.js');
+    // navigator.serviceWorker.register('./service-worker.js');
   </script>
 </head>
 <body>
   <div id="app"></div>
-  <script src="./example/src/index.js" type="module" async></script>
+  <pre><code style="font-size: 20px;line-height: 30px;"></code></pre>
+  <template id="tpl">
+    <div title="this is title" :style="{this is style}">
+      this is a text
+      <p @click="onclicked" #if="bool" :class="classNamessss">this is a ${para}</p>
+      <my-comp :aaa="a" :bbb="b" ccc="c" @custom-event="handle"></my-comp>
+      <img :src="imgUrl" alt="image">
+      <ul>
+        <li #for="val, i of theList by i">list: <span> ${val + i}</span></li>
+      </ul>
+    </div>
+  </template>
+  <script type="module">
+    import compile from './compiler/node/index.js';
+    const template = document.getElementById('tpl').innerHTML;
+    document.querySelector('code').appendChild(document.createTextNode(template));
+    const meta = compile(template);
+    console.log(meta);
+  </script>
+  <!-- <script src="./example/src/index.js" type="module" async></script> -->
 </body>
 </html>

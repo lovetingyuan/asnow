@@ -8,7 +8,6 @@ export default function parseChildren(node) {
     const meta = parseNode(childNode);
     if (meta) {
       nodesMap[i] = meta;
-    } else {
       relpaceWithComment(childNode);
     }
   }
