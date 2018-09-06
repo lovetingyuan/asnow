@@ -1,8 +1,9 @@
-import { parseForExpression, parseEventExpression, relpaceWithComment } from './utils.js';
+import { parseForExpression, parseEventExpression } from './parseExpression.js';
 
 function parseComponentAttrs(attrs) {
   const directives = {};
-  const props = {};
+  const _attrs = {};
+  const bindings = {};
   const events = {};
   for (let attr of attrs) {
     const { name, value } = attr;
@@ -14,31 +15,28 @@ function parseComponentAttrs(attrs) {
       directives[name.substr(1)] = _value;
     } else if (name[0] === '@') {
       events[name.substr(1)] = parseEventExpression(value);
+    } else if (name[0] === ':') {
+      bindings[name.substr(1)] = value;
     } else {
-      if (name[0] === ':') {
-        props[name.substr(1)] = value;
-      } else {
-        props[name] = value;
-      }
+      _attrs[name] = value;
     }
   }
   return {
     directives: Object.keys(directives).length ? directives : null,
-    props: Object.keys(props).length ? props : null,
+    bindings: Object.keys(bindings).length ? bindings : null,
     events: Object.keys(events).length ? events : null,
+    attrs: Object.keys(_attrs).length ? _attrs : null,
   };
 }
 
 export default function parseComponent(node) {
-  const { directives, props, events } = parseComponentAttrs(node.attrs);
-  // const children = parseChildNodes(node);
-  // relpaceWithComment(node);
+  const { directives, bindings, attrs, events } = parseComponentAttrs(node.attrs);
   return {
     type: 'component',
-    tag: node.tagName,
+    name: node.tagName,
     directives,
-    props,
+    bindings,
+    attrs,
     events,
-    // children,
   };
 }

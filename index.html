@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>asnow</title>
-  <script src="./parser5.js"></script>
   <script>
     // navigator.serviceWorker.register('./service-worker.js');
   </script>
@@ -15,17 +14,18 @@
   <pre><code style="font-size: 20px;line-height: 30px;"></code></pre>
   <template id="tpl">
     <div title="this is title" :style="{this is style}">
-      this is a text
+      this is a&nbsp;&nbsp;text
       <p @click="onclicked" #if="bool" :class="classNamessss">this is a ${para}</p>
       <my-comp :aaa="a" :bbb="b" ccc="c" @custom-event="handle"></my-comp>
       <img :src="imgUrl" alt="image">
+      <span>this is static</span>
       <ul>
         <li #for="val, i of theList by i">list: <span> ${val + i}</span></li>
       </ul>
     </div>
   </template>
   <script type="module">
-    import compile from './compiler/node/index.js';
+    import compile from './compiler/index.js';
     const template = document.getElementById('tpl').innerHTML;
     document.querySelector('code').appendChild(document.createTextNode(template));
     const meta = compile(template);

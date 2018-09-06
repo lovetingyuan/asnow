@@ -37,7 +37,7 @@ self.addEventListener('fetch', function (e) {
       }).code;
       return getScriptResponse(script);
     } else if (ext === 'html') {
-      const template = (await response.text()).trim();
+      const template = await response.text();
       const html = `export default ${JSON.stringify(template)}`;
       return getScriptResponse(html);
     } else {

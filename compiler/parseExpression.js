@@ -1,3 +1,10 @@
+export default function parseExpression(expression) {
+  return {
+    expression,
+    vars: []
+  }
+}
+
 export function parseForExpression(expression) {
   const forExpReg = / +(of|by) +/g;
   const forExp = expression.trim();
@@ -35,13 +42,3 @@ export function parseEventExpression(expression) {
   return result;
 }
 
-export function relpaceWithComment(node) {
-  const comment = {
-    nodeName: '#comment',
-    data: '',
-    parentNode: node.parentNode
-  };
-  const idx = node.parentNode.childNodes.indexOf(node);
-  node.parentNode.childNodes[idx] = comment;
-  node.parentNode = null;
-}
