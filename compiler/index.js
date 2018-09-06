@@ -1,12 +1,32 @@
-import './parse5.js'; // export parse5 to global
 import parseNode from './parseNode.js';
 
+const invalidRootTags = [
+  'html',
+  'body',
+  'head',
+  'script',
+  'noscript',
+  'style',
+  'title',
+  'link',
+  'meta',
+  'base',
+  'basefont',
+];
+
 export default function compile(template) {
-  const ast = parse5.parseFragment(template.trim());
-  if (ast.childNodes.length !== 1) {
-    throw new Error('template can only contain a single root element');
+  const templateAst = parse5.parseFragment(template.trim());
+  if (templateAst.childNodes.length !== 1) {
+    throw new Error('Template can only contain a single root element');
   }
-  const meta = parseNode(ast.childNodes[0]);
-  meta.template = ast;
+  const rootNode = templateAst.childNodes[0];
+  if (!rootNode.tagName) {
+    throw new Error('Root node of template must be an element.');
+  }
+  if (~invalidRootTags.indexOf(rootNode.tagName)) {
+    throw new Error(rootNode.tagName + ' can not use as root node.');
+  }
+  const meta = parseNode(rootNode);
+  meta.static = parse5.serialize(templateAst);
   return meta;
 }

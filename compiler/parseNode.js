@@ -26,10 +26,10 @@ export default function parseNode(node) {
       if (meta) {
         if (meta.directives) {
           relpaceWithComment(node);
-          meta.template = {
+          meta.static = parse5.serialize({
             nodeName: '#document-fragment',
             childNodes: [node]
-          };
+          });
         }
         return meta;
       }

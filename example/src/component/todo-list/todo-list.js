@@ -2,7 +2,6 @@ import template from './todo-list.html';
 import Component from '../../../../runtime/component.js';
 import ListItem from '../list-item/index.js';
 import EmptyStr from '../empty-str/index.js';
-
 @Component({
   name: 'my-comp',
   template,
