@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "live-server",
-    "build:parse5": "browserify ./node_modules/parse5/lib/index.js --outfile compiler/parse5.js --standalone parse5",
+    "start": "npm run build:parse5 && live-server",
+    "build:parse5": "browserify ./node_modules/parse5/lib/index.js --outfile node_modules/parse5/browser.js --standalone parse5",
     "build:htmlparser2": "browserify ./node_modules/htmlparser2/lib/index.js --outfile htmlparser2.js --standalone htmlparser"
   },
   "keywords": [],

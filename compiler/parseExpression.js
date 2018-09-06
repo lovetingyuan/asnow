@@ -1,4 +1,5 @@
 export default function parseExpression(expression) {
+  // path.replaceWith(t.memberExpression(t.identifier('this'), node))
   return {
     expression,
     vars: []

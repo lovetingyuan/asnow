@@ -48,17 +48,19 @@ function parseElementAttrs(node) {
 
 function parseChildren(node) {
   const children = [];
+  let hasChild;
   for (let i = 0; i < node.childNodes.length; i++) {
     children[i] = parseNode(node.childNodes[i]) || null;
+    if (!hasChild) { hasChild = children[i]; }
   }
-  return children;
+  return hasChild ? children : null;
 }
 
 export default function parseElement(node) {
   const { directives, bindings, events, attrs } = parseElementAttrs(node);
   node.attrs = attrs;
   const children = parseChildren(node);
-  const staticElement = !directives && !bindings && !events && !children.length;
+  const staticElement = !directives && !bindings && !events && !children;
   if (!staticElement) {
     return {
       type: 'element',
