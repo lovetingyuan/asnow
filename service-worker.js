@@ -25,7 +25,6 @@ self.addEventListener('fetch', function (e) {
   const ext = pathname.split('.').pop();
   e.respondWith(fetch(e.request.clone()).then(async response => {
     if (ext === 'js' && /example\//.test(pathname)) {
-      console.log(pathname);
       let script = await response.text();
       script = Babel.transform(script, {
         plugins: [
