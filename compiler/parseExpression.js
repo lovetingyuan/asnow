@@ -1,5 +1,7 @@
+import buble from 'buble';
+
 function parseExpression(expression, type) {
-  // path.replaceWith(t.memberExpression(t.identifier('this'), node))
+  // path.replaceWith(t.memberExpression(t.identifier('_vm'), node))
   let code, vars, templateLiteral;
   try {
     if (type === 'text') {

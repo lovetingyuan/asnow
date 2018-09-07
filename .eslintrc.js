@@ -1,11 +1,6 @@
 module.exports = {
   root: true,
   parser: 'babel-eslint',
-  globals: {
-    parse5: true,
-    Babel: true,
-    buble: true,
-  },
   parserOptions: {
     ecmaVersion: 8,
     sourceType: 'module',
