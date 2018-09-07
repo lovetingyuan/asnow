@@ -1,3 +1,4 @@
+import parse5 from 'parse5';
 import parseComponent from './parseComponent.js';
 import parseElement from './parseElement.js';
 import parseText from './parseText.js';

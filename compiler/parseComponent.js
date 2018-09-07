@@ -28,7 +28,6 @@ function parseComponentAttrs(attrs) {
     directives: Object.keys(directives).length ? directives : null,
     props: Object.keys(props).length ? props : null,
     events: Object.keys(events).length ? events : null,
-    // attrs: Object.keys(_attrs).length ? _attrs : null,
   };
 }
 

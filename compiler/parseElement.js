@@ -1,6 +1,5 @@
 import { parseEventExpression, parseForExpression, parseExpression } from './parseExpression.js';
 import parseNode from './parseNode.js';
-// function parseNode() {}
 
 function parseElementAttrs(node) {
   const directives = {};
@@ -56,13 +55,14 @@ function parseElementAttrs(node) {
 }
 
 function parseChildren(node) {
-  const children = [];
-  let hasChild;
+  const children = {};
   for (let i = 0; i < node.childNodes.length; i++) {
-    children[i] = parseNode(node.childNodes[i]) || null;
-    if (!hasChild) { hasChild = children[i]; }
+    const child = parseNode(node.childNodes[i]);
+    if (child) {
+      children[i] = child;
+    }
   }
-  return hasChild ? children : null;
+  return Object.keys(children).length ? children : null;
 }
 
 export default function parseElement(node) {
