@@ -5,17 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>asnow</title>
-  <script>
-    // navigator.serviceWorker.register('./service-worker.js');
-  </script>
 </head>
 <body>
   <div id="app"></div>
   <pre><code style="font-size: 20px;line-height: 30px;"></code></pre>
   <template id="tpl">
-    <div title="this is title" :style="{this is style}">
-      this is a&nbsp;&nbsp;text
-      <p @click="onclicked" #if="bool" :class="classNamessss" data-a="aa" csdf>this is a ${para}</p>
+    <div title="this is title" :style="{'font-size': '12px'}" style="color: red">
+      this is a&nbsp;&nbsp;textsa
+      <p @click="onclicked" #if="bool" :class="[aaa, fsdf]" data-a="aa" csdf>this is a ${para}</p>
       <my-comp :aaa="a" :bbb="b" ccc="c" @custom-event="handle"></my-comp>
       <img :src="imgUrl" alt="image">
       <span>this is static</span>
@@ -25,8 +22,11 @@
       </ul>
     </div>
   </template>
-  <script src="./node_modules/parse5/browser.js"></script>
-  <script src="./node_modules/@babel/standalone/babel.min.js"></script>
+  <script src="./parse5.js"></script>
+  <script src="./buble.js"></script>
+  <script>
+    // navigator.serviceWorker.register('./service-worker.js');
+  </script>
   <script type="module">
     import compile from './compiler/index.js';
     const template = document.getElementById('tpl').innerHTML;

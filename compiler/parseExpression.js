@@ -1,12 +1,31 @@
-export default function parseExpression(expression) {
+function parseExpression(expression, type) {
   // path.replaceWith(t.memberExpression(t.identifier('this'), node))
-  return {
-    expression,
-    vars: []
+  let code, vars, templateLiteral;
+  try {
+    if (type === 'text') {
+      expression = '`' + expression + '`';
+    } else if (type === 'if') {
+      expression = '!!(' + expression + ')';
+    } else {
+      expression = '(' + expression + ')';
+    }
+    ({ code, vars, templateLiteral } = buble.transform(expression));
+  } catch(e) {
+    throw new Error('Invalid experssion: ' + expression + ' ' + e.message);
   }
+  if (type === 'text' && !templateLiteral) {
+    return;
+  }
+  return getFunction(code, vars);
 }
 
-export function parseForExpression(expression) {
+function getFunction(code, vars) {
+  const func = new Function(`${vars.length ? 'var _vm=this;' : ''}return ${code}`);
+  Object.defineProperty(func, 'vars', {value: vars});
+  return func;
+}
+
+function parseForExpression(expression) {
   const forExpReg = / +(of|by) +/g;
   const forExp = expression.trim();
   const result = {};
@@ -22,7 +41,7 @@ export function parseForExpression(expression) {
     throw err;
   }
   result.value = varExp;
-  result.list = listExp;
+  result.list = parseExpression(listExp);
   if (indexExp) {
     result.index = indexExp;
   }
@@ -32,14 +51,20 @@ export function parseForExpression(expression) {
   return result;
 }
 
-export function parseEventExpression(expression) {
+function parseEventExpression(expression) {
   expression = expression.trim();
-  const result = {};
+  let result = [];
   const exps = expression.split(/\(|\)/).filter(Boolean);
-  result.handler = exps[0];
+  result.push(exps[0]);
   if (exps.length > 1) {
-    result.args = exps[1].split(',').map(v => v.trim());
+    result = result.concat(exps[1].split(',').map(v => v.trim()));
   }
   return result;
+}
+
+export {
+  parseExpression,
+  parseEventExpression,
+  parseForExpression
 }
 

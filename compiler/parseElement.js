@@ -1,5 +1,6 @@
-import { parseEventExpression, parseForExpression } from './parseExpression.js';
+import { parseEventExpression, parseForExpression, parseExpression } from './parseExpression.js';
 import parseNode from './parseNode.js';
+// function parseNode() {}
 
 function parseElementAttrs(node) {
   const directives = {};
@@ -12,30 +13,38 @@ function parseElementAttrs(node) {
       let _value = value;
       if (name === '#for') {
         _value = parseForExpression(value);
+      } else if (name === '#if') {
+        _value = parseExpression(value, 'if');
+      } else {
+        throw new Error('Unknown directive: ' + name + '=' + value);
       }
       directives[name.substr(1)] = _value;
     } else if (name[0] === ':') {
-      let _value = value;
-      if (name === ':style' || name === ':class') {
-        _value = [value, ''];
-      }
-      bindings[name.substr(1)] = _value;
+      bindings[name.substr(1)] = parseExpression(value);
     } else if (name[0] === '@') {
       events[name.substr(1)] = parseEventExpression(value);
     } else {
-      attrs.push(attr);
+      if (attr.name === 'style' || attr.name === 'class') {
+        attrs[name] = attr;
+      } else {
+        attrs.push(attr);
+      }
     }
     if (attrs.style) {
       if (bindings.style) {
-        bindings.style[1] = attrs.style;
-        delete attrs.style;
+        Object.defineProperty(bindings.style, 'static', { value: attrs.style.value });
+      } else {
+        attrs.push(attrs.style);
       }
+      delete attrs.style;
     }
     if (attrs.class) {
       if (bindings.class) {
-        bindings.class[1] = attrs.class;
-        delete attrs.class;
+        Object.defineProperty(bindings.class, 'static', {value: attrs.class.value});
+      } else {
+        attrs.push(attrs.class);
       }
+      delete attrs.class;
     }
   }
   return {
