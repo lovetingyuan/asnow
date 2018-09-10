@@ -24,7 +24,7 @@ self.addEventListener('fetch', function (e) {
   const { pathname } = new URL(e.request.url);
   if (/\/(parse5|buble)$/.test(pathname)) {
     const lib = pathname.split('/').pop();
-    e.respondWith(fetch(`./${lib}.js`).then(async response => {
+    e.respondWith(fetch(`./lib/${lib}.js`).then(async response => {
       let script = await response.text();
       return getScriptResponse(`(function(){${script}}).call(window);export default ${lib}`);
     }));

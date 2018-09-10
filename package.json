@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "eslint": "^4.19.1",
-    "validate-element-name": "^2.1.1"
+    "validate-element-name": "^2.1.1",
+    "vue-template-compiler": "^2.5.17"
   }
 }
