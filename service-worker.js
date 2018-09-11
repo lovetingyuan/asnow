@@ -28,7 +28,7 @@ self.addEventListener('fetch', function (e) {
     const lib = pathname.split('/').pop();
     const file = lib === 'buble' ?
       './lib/buble/dist/buble-browser-deps.umd.js' :
-      './lib/parse5/packages/parse5/dist/parse5-browser-umd.js';
+      './lib/parse5-umd.js';
     e.respondWith(fetch(file).then(async response => {
       let script = await response.text();
       return getScriptResponse(`(function(){${script}}).call(window);\nexport default ${lib}`);

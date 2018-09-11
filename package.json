@@ -1,12 +1,13 @@
 {
-  "name": "staple",
+  "name": "asnow",
   "version": "1.0.0",
-  "description": "",
+  "description": "asnow",
   "main": "index.js",
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "live-server"
+    "start": "live-server",
+    "build:parse5": "browserify ./node_modules/parse5/lib/index.js --outfile lib/parse5-umd.js --standalone parse5"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +20,6 @@
     "parse5": "^5.1.0"
   },
   "dependencies": {
-    "eslint": "^4.19.1",
-    "validate-element-name": "^2.1.1"
+    "eslint": "^4.19.1"
   }
 }
