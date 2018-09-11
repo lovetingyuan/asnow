@@ -41,7 +41,7 @@ function getClass(binding) {
 }
 
 export default function updateElement(node, meta) {
-  const { nodes, bindings, events } = meta;
+  const { children: nodes, bindings, events } = meta;
   bindings && Object.keys(bindings).forEach(attrName => {
     let newAttrValue;
     if (attrName === 'style') {
@@ -60,8 +60,8 @@ export default function updateElement(node, meta) {
     eventNames.forEach(eventName => {
       const event = events[eventName];
       node.addEventListener(eventName, e => {
-        const args = event.args || [];
-        const handlerName = event.handler;
+        const handlerName = event[0];
+        const args = event.slice(1);
         if (typeof this[handlerName] !== 'function') {
           throw new Error(`event handler ${handlerName} not found in Component ${this.constructor.componentName}`);
         }

@@ -19,10 +19,9 @@ const reservedNames = [
 ];
 
 export function isComponentTag(name) {
-  if (!/-/.test(name)) return false;
   if (!customElementRegx.test(name)) return false;
-	if (reservedNames.indexOf(name) !== -1) return false;
-  if (/^(polymer-|x-|ng-|xml|[^a-z])/.test(name)) return false;
+  if (reservedNames.indexOf(name) !== -1) return false;
+  if (/^(polymer-|x-|ng-|xml)/.test(name)) return false;
   const parts = name.split('-');
   for (let part of parts) {
     if (!/^[0-9a-z_]+$/.test(part)) return false;

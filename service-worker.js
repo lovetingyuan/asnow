@@ -21,16 +21,19 @@ const getScriptResponse = text => new Response(text, {
   }
 });
 
+const libMap = {
+  buble: './lib/buble/dist/buble-browser-deps.umd.js',
+  parse5: './lib/parse5-umd.js',
+};
+
 self.addEventListener('fetch', function (e) {
   // console.log('[ServiceWorker] Fetch: ', e.request.url);
   const { pathname } = new URL(e.request.url);
-  if (/\/(parse5|buble)$/.test(pathname)) {
+  if (/\/__third_modules__\/.+/.test(pathname)) {
     const lib = pathname.split('/').pop();
-    const file = lib === 'buble' ?
-      './lib/buble/dist/buble-browser-deps.umd.js' :
-      './lib/parse5-umd.js';
-    e.respondWith(fetch(file).then(async response => {
+    e.respondWith(fetch(libMap[lib]).then(async response => {
       let script = await response.text();
+      // fix `this => global` in strict mode and export the namespace as default
       return getScriptResponse(`(function(){${script}}).call(window);\nexport default ${lib}`);
     }));
   } else {
@@ -38,24 +41,24 @@ self.addEventListener('fetch', function (e) {
     e.respondWith(fetch(e.request.clone()).then(async response => {
       if (ext === 'js') {
         let script = await response.text();
-        if (/example\//.test(pathname)) {
+        if (/^\/example\//.test(pathname)) {
           script = Babel.transform(script, {
             plugins: [
               ['proposal-decorators', { legacy: true }],
               'proposal-class-properties',
-              'proposal-object-rest-spread',
+              ['proposal-object-rest-spread', {useBuiltIns: true}],
               'proposal-export-default-from',
             ]
           }).code;
-        } else if (/compiler\//.test(pathname)) {
+        } else if (/^\/compiler\//.test(pathname)) {
           script = Babel.transform(script, {
             plugins: [() => {
               return {
                 visitor: {
                   ImportDeclaration(path) {
                     const src = path.node.source.value;
-                    if (!/^(\.\/|\/|\.\.\/)/.test(src)) {
-                      path.node.source.value = '/' + src;
+                    if (!/^(\.\/|\/|\.\.\/|https?:\/\/)/i.test(src)) {
+                      path.node.source.value = '/__third_modules__/' + src;
                     }
                   }
                 }
@@ -66,7 +69,7 @@ self.addEventListener('fetch', function (e) {
         return getScriptResponse(script);
       } else if (ext === 'html') {
         const template = await response.text();
-        const html = `export default ${JSON.stringify(template)}`;
+        const html = `import compile from '/compiler/index.js';\nexport default compile(${JSON.stringify(template)})`;
         return getScriptResponse(html);
       } else {
         return response;
