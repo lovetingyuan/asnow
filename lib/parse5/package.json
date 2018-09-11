@@ -27,7 +27,8 @@
         "postinstall": "npm run bootstrap",
         "preversion": "npm test",
         "precommit": "lint-staged",
-        "publish": "lerna exec 'npm publish'"
+        "publish": "lerna exec 'npm publish'",
+        "build:browser": "browserify ./packages/parse5/lib/index.js --outfile ./packages/parse5/dist/parse5-browser-umd.js --standalone parse5"
     },
     "lint-staged": {
         "*.{js,json}": [

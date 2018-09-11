@@ -16,7 +16,9 @@ self.addEventListener('message', function (evt) {
 const getScriptResponse = text => new Response(text, {
   status: 200,
   statusText: 'OK',
-  headers: { 'Content-Type': 'application/javascript; charset=UTF-8' }
+  headers: {
+    'Content-Type': 'application/javascript; charset=UTF-8'
+  }
 });
 
 self.addEventListener('fetch', function (e) {
@@ -24,9 +26,12 @@ self.addEventListener('fetch', function (e) {
   const { pathname } = new URL(e.request.url);
   if (/\/(parse5|buble)$/.test(pathname)) {
     const lib = pathname.split('/').pop();
-    e.respondWith(fetch(`./lib/${lib}.js`).then(async response => {
+    const file = lib === 'buble' ?
+      './lib/buble/dist/buble-browser-deps.umd.js' :
+      './lib/parse5/packages/parse5/dist/parse5-browser-umd.js';
+    e.respondWith(fetch(file).then(async response => {
       let script = await response.text();
-      return getScriptResponse(`(function(){${script}}).call(window);export default ${lib}`);
+      return getScriptResponse(`(function(){${script}}).call(window);\nexport default ${lib}`);
     }));
   } else {
     const ext = pathname.split('.').pop();

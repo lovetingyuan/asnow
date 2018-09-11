@@ -6,9 +6,7 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run build:parse5 && live-server",
-    "build:parse5": "browserify ./node_modules/parse5/lib/index.js --outfile node_modules/parse5/browser.js --standalone parse5",
-    "build:htmlparser2": "browserify ./node_modules/htmlparser2/lib/index.js --outfile htmlparser2.js --standalone htmlparser"
+    "start": "live-server"
   },
   "keywords": [],
   "author": "",
@@ -17,13 +15,11 @@
     "@babel/standalone": "^7.0.0",
     "babel-eslint": "^8.2.2",
     "buble": "^0.19.3",
-    "htmlparser2": "^3.9.2",
     "live-server": "^1.2.0",
     "parse5": "^5.1.0"
   },
   "dependencies": {
     "eslint": "^4.19.1",
-    "validate-element-name": "^2.1.1",
-    "vue-template-compiler": "^2.5.17"
+    "validate-element-name": "^2.1.1"
   }
 }
