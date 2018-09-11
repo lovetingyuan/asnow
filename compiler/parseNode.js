@@ -2,6 +2,7 @@ import parse5 from 'parse5';
 import parseComponent from './parseComponent.js';
 import parseElement from './parseElement.js';
 import parseText from './parseText.js';
+import { isComponentTag } from './validateTag.js';
 
 function relpaceWithComment(node) {
   const comment = {
@@ -21,8 +22,12 @@ export default function parseNode(node) {
       relpaceWithComment(node);
       return meta;
     }
-  } else if (node.tagName) {
-    if (node.tagName.indexOf('-') < 0) {
+  } else if (node.tagName) { // HTMLElement
+    if (isComponentTag(node.tagName)) {
+      const meta = parseComponent(node);
+      relpaceWithComment(node);
+      return meta;
+    } else {
       const meta = parseElement(node);
       if (meta) {
         if (meta.directives) {
@@ -34,10 +39,6 @@ export default function parseNode(node) {
         }
         return meta;
       }
-    } else {
-      const meta = parseComponent(node);
-      relpaceWithComment(node);
-      return meta;
     }
   }
 }
