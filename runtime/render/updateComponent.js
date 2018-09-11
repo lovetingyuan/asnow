@@ -20,16 +20,6 @@ function getProps(props, componentProps) {
 }
 
 function createComponent(meta = {}, Component) {
-  // if (meta.props) {
-  //   if (meta.props.__proto__ === Object.prototype) {
-  //     const defaultProps = {};
-  //     const validProps = {};
-  //     Object.keys(Component.props).forEach(name => {
-
-  //     })
-
-  //   }
-  // }
   const props = getProps.call(this, meta.props, Component.props);
   const newNode = Component.meta.element.cloneNode(true);
   const parent = this ? (this.__for__ ? this.__proto__ : this) : null;

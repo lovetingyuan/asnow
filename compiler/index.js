@@ -27,7 +27,6 @@ export default function compile(template) {
   if (~invalidRootTags.indexOf(rootNode.tagName)) {
     throw new Error(rootNode.tagName + ' can not be used as root node.');
   }
-  const meta = parseNode(rootNode);
-  meta.static = parse5.serialize(templateAst);
-  return meta;
+  rootNode.root = true;
+  return parseNode(rootNode);
 }

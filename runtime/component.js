@@ -1,6 +1,4 @@
 // import Cache from '../../utils/cache.js';
-import compile from '../../compiler/browser/index.js';
-import compile2 from '../../compiler/node/index.js';
 import updateNode from './render/updateNode.js';
 
 // @Component({
@@ -18,7 +16,7 @@ import updateNode from './render/updateNode.js';
 // class MyComponent {}
 
 function Component(meta) {
-  const {name, style, props = {}, template, components = {}} = meta;
+  let {name, style, props = {}, template: compileMeta, components = {}} = meta;
   // TODO check name and template required
   Object.keys(components).forEach(componentName => {
     const componentNames = componentName.split('').map((v, i) => {
@@ -27,9 +25,20 @@ function Component(meta) {
     components[componentNames] = components[componentName];
     delete components[componentName];
   });
-  const compileMeta = compile(name, template);
-  console.log('compileMeta', compileMeta);
-  console.log('newCompile', compile2(template));
+  if (typeof compileMeta === 'string') {
+    let div = document.createElement('div');
+    div.innerHTML = compileMeta;
+    compileMeta = {
+      type: 'element',
+      static: compileMeta,
+    };
+    Object.defineProperty(compileMeta, 'element', {
+      get() {
+        return div.firstElementChild.cloneNode(true)
+      }
+    });
+  }
+  console.log('compileMeta', compileMeta); // eslint-disable-line
   return function (target) {
     Object.assign(target.prototype, {
       $render(newState) {
@@ -44,7 +53,7 @@ function Component(meta) {
       },
       $emit(eventName, ...args) {
         const parentVm = this.$parent;
-        const handlerName = this.$events[eventName].handler;
+        const handlerName = this.$events[eventName][0];
         if (parentVm && typeof parentVm[handlerName] === 'function') {
           return parentVm[handlerName](...args);
         } else {
