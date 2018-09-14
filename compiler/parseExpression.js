@@ -10,12 +10,12 @@ function parseExpression(expression) {
       objectAssign: 'Object.assign',
       _varsMap: varsMap,
       _contextName: contextName
-    }).code.replace('void', 'return');
+    }).code.substr(5); // 5 === 'void '.length
   } catch (e) {
-    throw new Error('Invalid experssion: ' + expression + ' ' + e.message);
+    throw new Error(`Invalid experssion: ${JSON.stringify(expression)}, ${e.message}`);
   }
   const vars = Object.keys(varsMap);
-  const func = new Function(`${vars.length ? `var ${contextName}=this;` : ''}${code}`);
+  const func = new Function(`${vars.length ? `var ${contextName}=this;` : ''}return ${code}`);
   Object.defineProperty(func, 'vars', {value: vars});
   return func;
 }
@@ -27,7 +27,7 @@ function parseTextExpression(expression) {
   tokens = tokens.map(token => {
     if (token[0] === 'name') {
       hasBinding = true;
-      return `(${token[1]})`;
+      return token[1];
     }
     return JSON.stringify(token[1].replace(blankReg, ' '));
   });
