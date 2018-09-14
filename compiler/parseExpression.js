@@ -2,14 +2,22 @@ import buble from 'buble';
 import mustache from 'mustache';
 
 function parseExpression(expression) {
+  const varsMap = Object.create(null);
+  const contextName = '__vm';
+  let code;
   try {
-    const { code, vars } = buble.transform(`(${expression})`);
-    const func = new Function(`${vars.length ? 'var _vm=this;' : ''}return ${code}`);
-    Object.defineProperty(func, 'vars', {value: vars});
-    return func;
+    code = buble.transform(`(${expression})`, {
+      objectAssign: 'Object.assign',
+      _varsMap: varsMap,
+      _contextName: contextName
+    }).code;
   } catch (e) {
     throw new Error('Invalid experssion: ' + expression + ' ' + e.message);
   }
+  const vars = Object.keys(varsMap);
+  const func = new Function(`${vars.length ? `var ${contextName}=this;` : ''}return ${code}`);
+  Object.defineProperty(func, 'vars', {value: vars});
+  return func;
 }
 
 function parseTextExpression(expression) {
