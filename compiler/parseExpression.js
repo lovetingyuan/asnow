@@ -3,19 +3,19 @@ import mustache from 'mustache';
 
 function parseExpression(expression) {
   const varsMap = Object.create(null);
-  const contextName = '__vm';
+  const contextName = '__$$__';
   let code;
   try {
-    code = buble.transform(`(${expression})`, {
+    code = buble.transform(`void (${expression})`, {
       objectAssign: 'Object.assign',
       _varsMap: varsMap,
       _contextName: contextName
-    }).code;
+    }).code.replace('void', 'return');
   } catch (e) {
     throw new Error('Invalid experssion: ' + expression + ' ' + e.message);
   }
   const vars = Object.keys(varsMap);
-  const func = new Function(`${vars.length ? `var ${contextName}=this;` : ''}return ${code}`);
+  const func = new Function(`${vars.length ? `var ${contextName}=this;` : ''}${code}`);
   Object.defineProperty(func, 'vars', {value: vars});
   return func;
 }
