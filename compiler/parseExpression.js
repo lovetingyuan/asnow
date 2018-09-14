@@ -4,16 +4,12 @@ import mustache from 'mustache';
 function parseExpression(expression) {
   try {
     const { code, vars } = buble.transform(`(${expression})`);
-    return getFunction(code, vars);
+    const func = new Function(`${vars.length ? 'var _vm=this;' : ''}return ${code}`);
+    Object.defineProperty(func, 'vars', {value: vars});
+    return func;
   } catch (e) {
     throw new Error('Invalid experssion: ' + expression + ' ' + e.message);
   }
-}
-
-function getFunction(code, vars) {
-  const func = new Function(`${vars.length ? 'var _vm=this;' : ''}return ${code}`);
-  Object.defineProperty(func, 'vars', {value: vars});
-  return func;
 }
 
 function parseTextExpression(expression) {
