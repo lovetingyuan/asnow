@@ -1,7 +1,7 @@
 import buble from 'buble';
 import mustache from 'mustache';
 
-function parseExpression(expression, type) {
+function parseExpression(expression) {
   try {
     const { code, vars } = buble.transform(`(${expression})`);
     return getFunction(code, vars);
@@ -16,8 +16,8 @@ function getFunction(code, vars) {
   return func;
 }
 
-const blankReg = /\s{2,}/g;
 function parseTextExpression(expression) {
+  const blankReg = /\s{2,}/g;
   let tokens = mustache.parse(expression, ['{', '}']);
   let hasBinding;
   tokens = tokens.map(token => {

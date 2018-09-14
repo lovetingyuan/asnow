@@ -1,4 +1,8 @@
-import { parseEventExpression, parseForExpression, parseExpression } from './parseExpression.js';
+import {
+  parseEventExpression,
+  parseForExpression,
+  parseExpression
+} from './parseExpression.js';
 import parseNode from './parseNode.js';
 
 function parseElementAttrs(node) {
@@ -13,7 +17,7 @@ function parseElementAttrs(node) {
       if (name === '#for') {
         _value = parseForExpression(value);
       } else if (name === '#if') {
-        _value = parseExpression(value, 'if');
+        _value = parseExpression(value);
       } else {
         throw new Error('Unknown directive: ' + name + '=' + value);
       }

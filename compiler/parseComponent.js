@@ -1,4 +1,8 @@
-import { parseForExpression, parseEventExpression, parseExpression } from './parseExpression.js';
+import {
+  parseForExpression,
+  parseEventExpression,
+  parseExpression
+} from './parseExpression.js';
 
 function parseComponentAttrs(attrs) {
   const directives = {};
@@ -11,7 +15,7 @@ function parseComponentAttrs(attrs) {
       if (name === '#for') {
         _value = parseForExpression(value);
       } else if (name === '#if') {
-        _value = parseExpression(value, 'if');
+        _value = parseExpression(value);
       } else {
         throw new Error('Unknown directive: ' + name + '=' + value);
       }
