@@ -16,21 +16,23 @@ function relpaceWithComment(node) {
 }
 
 function setStatic(meta, node) {
-  const ast = node.nodeName === '#document-fragment' ? node : {
-    nodeName: '#document-fragment',
-    childNodes: [node]
+  meta.static = {
+    template: parse5.serialize(
+      node.nodeName === '#document-fragment' ? node : {
+        nodeName: '#document-fragment',
+        childNodes: [node]
+      }
+    )
   };
-  const template = parse5.serialize(ast);
-  meta.static = new String(template);
   Object.defineProperty(meta, 'element', { // only access at runtime
     get() {
-      if (!this.static._node) {
+      if (!this.static.node) {
         let div = document.createElement('div');
-        div.innerHTML = this.static;
-        this.static._node = div.firstElementChild;
+        div.innerHTML = this.static.template;
+        Object.defineProperty(this.static, 'node', { value: div.firstElementChild })
         div = null;
       }
-      return this.static._node.cloneNode(true);
+      return this.static.node.cloneNode(true);
     }
   });
 }
