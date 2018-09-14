@@ -1,30 +1,34 @@
 import buble from 'buble';
+import mustache from 'mustache';
 
 function parseExpression(expression, type) {
-  // path.replaceWith(t.memberExpression(t.identifier('_vm'), node))
-  let code, vars, templateLiteral;
   try {
-    if (type === 'text') {
-      expression = '`' + expression + '`';
-    } else if (type === 'if') {
-      expression = '!!(' + expression + ')';
-    } else {
-      expression = '(' + expression + ')';
-    }
-    ({ code, vars, templateLiteral } = buble.transform(expression));
-  } catch(e) {
+    const { code, vars } = buble.transform(`(${expression})`);
+    return getFunction(code, vars);
+  } catch (e) {
     throw new Error('Invalid experssion: ' + expression + ' ' + e.message);
   }
-  if (type === 'text' && !templateLiteral) {
-    return;
-  }
-  return getFunction(code, vars);
 }
 
 function getFunction(code, vars) {
   const func = new Function(`${vars.length ? 'var _vm=this;' : ''}return ${code}`);
   Object.defineProperty(func, 'vars', {value: vars});
   return func;
+}
+
+const blankReg = /\s{2,}/g;
+function parseTextExpression(expression) {
+  let tokens = mustache.parse(expression, ['{', '}']);
+  let hasBinding;
+  tokens = tokens.map(token => {
+    if (token[0] === 'name') {
+      hasBinding = true;
+      return `(${token[1]})`;
+    }
+    return JSON.stringify(token[1].replace(blankReg, ' '));
+  });
+  if (!hasBinding) return null;
+  return parseExpression(tokens.join('+'));
 }
 
 function parseForExpression(expression) {
@@ -66,6 +70,7 @@ function parseEventExpression(expression) {
 
 export {
   parseExpression,
+  parseTextExpression,
   parseEventExpression,
   parseForExpression
 }
