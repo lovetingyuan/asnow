@@ -1,5 +1,4 @@
 import buble from 'buble';
-import mustache from 'mustache';
 
 function parseExpression(expression) {
   const varsMap = Object.create(null);
@@ -18,21 +17,6 @@ function parseExpression(expression) {
   const func = new Function(`${vars.length ? `var ${contextName}=this;` : ''}return ${code}`);
   Object.defineProperty(func, 'vars', {value: vars});
   return func;
-}
-
-function parseTextExpression(expression) {
-  const blankReg = /\s{2,}/g;
-  let tokens = mustache.parse(expression, ['{', '}']);
-  let hasBinding;
-  tokens = tokens.map(token => {
-    if (token[0] === 'name') {
-      hasBinding = true;
-      return token[1];
-    }
-    return JSON.stringify(token[1].replace(blankReg, ' '));
-  });
-  if (!hasBinding) return null;
-  return parseExpression(tokens.join('+'));
 }
 
 function parseForExpression(expression) {
@@ -74,7 +58,6 @@ function parseEventExpression(expression) {
 
 export {
   parseExpression,
-  parseTextExpression,
   parseEventExpression,
   parseForExpression
 }
