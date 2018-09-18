@@ -14,9 +14,9 @@ function parseExpression(expression) {
     throw new Error(`Invalid experssion: ${JSON.stringify(expression)}, ${e.message}`);
   }
   const vars = Object.keys(varsMap);
-  const func = new Function(`${vars.length ? `var ${contextName}=this;` : ''}return ${code}`);
-  Object.defineProperty(func, 'vars', {value: vars});
-  return func;
+  const bindingFunc = new Function(`${vars.length ? `var ${contextName}=this;` : ''}return ${code}`);
+  Object.defineProperty(bindingFunc, 'vars', {value: vars});
+  return bindingFunc;
 }
 
 function parseForExpression(expression) {

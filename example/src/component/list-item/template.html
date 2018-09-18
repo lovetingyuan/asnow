@@ -2,6 +2,6 @@
   <span @click="changeStatus">⏰ {$props.text} </span>
   <i style="cursor: pointer" @click="onRemove">❌</i>
   <ul>
-    <li #for="detail of details" #if="detail.length > 4">  {detail}</li>
+    <li #for="detail of details" #if="detail.length > 4">  {detail}</li> <!-- #for="v, i; details; v + i" -->
   </ul>
 </li>

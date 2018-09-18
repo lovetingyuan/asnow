@@ -38,9 +38,11 @@ self.addEventListener('fetch', function (e) {
       [url, ns] = meta;
     }
     e.respondWith(fetch(url).then(async response => {
-      let script = await response.text();
       // fix `this => global` in strict mode and export the namespace as default
-      return getScriptResponse(`(function(){${script}}).call(window);\nexport default ${ns}`);
+      return getScriptResponse(
+        `(function(){${await response.text()}}).call(window);\n` +
+        `const __$$__=${ns}; delete window.${ns}; export default __$$__;`
+      );
     }));
   } else {
     const ext = pathname.split('.').pop();
