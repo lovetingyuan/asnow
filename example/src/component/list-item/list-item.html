@@ -1,7 +1,0 @@
-<li :style="{'text-decoration': done ? 'line-through' : ''}" style="margin-top: 10px;">
-  <span @click="changeStatus">⏰ ${$props.text} </span>
-  <i style="cursor: pointer" @click="onRemove">❌</i>
-  <ul>
-    <li #for="detail of details" #if="detail.length > 4">${detail}</li>
-  </ul>
-</li>
