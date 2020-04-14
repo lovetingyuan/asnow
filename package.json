@@ -1,25 +1,24 @@
 {
   "name": "asnow",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "asnow",
   "main": "index.js",
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "live-server",
-    "build:parse5": "browserify ./node_modules/parse5/lib/index.js --outfile lib/parse5-umd.js --standalone parse5"
+    "build:parse5": "browserify ./node_modules/parse5/lib/index.js --outfile lib/parse5-umd.js --standalone parse5",
+    "build:buble": "git subtree pull --prefix=lib/buble git@github.com:Rich-Harris/buble.git master --squash && cd lib/buble && npm run build"
   },
   "keywords": [],
-  "author": "",
+  "author": "tingyuan",
   "license": "ISC",
   "devDependencies": {
     "@babel/standalone": "^7.0.0",
     "babel-eslint": "^8.2.2",
     "buble": "^0.19.3",
     "live-server": "^1.2.0",
+    "mustache": "^2.3.2",
     "parse5": "^5.1.0"
-  },
-  "dependencies": {
-    "eslint": "^4.19.1"
   }
 }

@@ -24,6 +24,7 @@ const getScriptResponse = text => new Response(text, {
 const libMap = {
   buble: './lib/buble/dist/buble-browser-deps.umd.js',
   parse5: './lib/parse5-umd.js',
+  mustache: ['./node_modules/mustache/mustache.min.js', 'Mustache'],
 };
 
 self.addEventListener('fetch', function (e) {
@@ -31,10 +32,17 @@ self.addEventListener('fetch', function (e) {
   const { pathname } = new URL(e.request.url);
   if (/\/__third_modules__\/.+/.test(pathname)) {
     const lib = pathname.split('/').pop();
-    e.respondWith(fetch(libMap[lib]).then(async response => {
-      let script = await response.text();
+    const meta = libMap[lib];
+    let url = meta, ns = lib;
+    if (Array.isArray(meta)) {
+      [url, ns] = meta;
+    }
+    e.respondWith(fetch(url).then(async response => {
       // fix `this => global` in strict mode and export the namespace as default
-      return getScriptResponse(`(function(){${script}}).call(window);\nexport default ${lib}`);
+      return getScriptResponse(
+        `(function(){${await response.text()}}).call(window);\n` +
+        `const __$$__=${ns}; delete window.${ns}; export default __$$__;`
+      );
     }));
   } else {
     const ext = pathname.split('.').pop();
