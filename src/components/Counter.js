@@ -11,8 +11,10 @@ export default class Counter {
       <div>counter: { count } 
         <button @click="handleAdd">add</button>
         <button @click="handleReset">reset</button>
+        
         <ul>
-          <li #for="num of list">{num}</li>
+          <p>冰雹猜想</p>
+          <li #for="(num) of list" data-num={num} style="float: left; margin: 0 20px;">{num}</li>
         </ul>
       </div>
     </div>

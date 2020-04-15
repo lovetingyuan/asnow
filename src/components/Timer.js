@@ -17,7 +17,7 @@ export default class Timer {
       <button @click="clear">clear</button>
 
       <ol>
-        <li #for="t of markList">{t}</li>
+        <li #for="(t, i) of markList">{t} <span style="cursor: pointer" @click="onDel(i)">×</span></li>
       </ol>
     </h2>
   `
@@ -41,6 +41,10 @@ export default class Timer {
   }
   clear () {
     this.markList = []
+    update(this)
+  }
+  onDel (i) {
+    this.markList.splice(i, 1)
     update(this)
   }
 }
