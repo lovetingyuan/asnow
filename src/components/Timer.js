@@ -1,11 +1,11 @@
-import update from '../../lib/update.js'
-
 export default class Timer {
   constructor() {
     const date = new Date()
-    this.time = date.toLocaleTimeString()
-    this.markList = []
-    this.stop = true
+    this.state = {
+      time: date.toLocaleTimeString(),
+      markList: [],
+      stop: true
+    }
   }
   static template = `
     <h2> 
@@ -22,29 +22,36 @@ export default class Timer {
     </h2>
   `
   toggle () {
-    if (this.stop) {
-      this.stop = false
+    if (this.state.stop) {
+      this.set(state => {
+        state.stop = false
+      })
       this.timer = setInterval(() => {
         const date = new Date()
-        this.time = date.toLocaleTimeString()
-        update(this)
-      }, 1000)
+        this.set(state => {
+          state.time = date.toLocaleTimeString()
+        })
+      }, 999)
     } else {
-      this.stop = true
+      this.set(state => {
+        state.stop = true
+      })
       clearInterval(this.timer)
     }
-    update(this)
   }
   mark () {
-    this.markList.push(this.time)
-    update(this)
+    this.set(state => {
+      state.markList.push(state.time)
+    })
   }
   clear () {
-    this.markList = []
-    update(this)
+    this.set(state => {
+      state.markList = []
+    })
   }
   onDel (i) {
-    this.markList.splice(i, 1)
-    update(this)
+    this.set(state => {
+      state.markList.splice(i, 1)
+    })
   }
 }

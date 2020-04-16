@@ -1,4 +1,3 @@
-import update from '../../lib/update.js'
 import Timer from './Timer.js'
 
 export default class Counter {
@@ -20,8 +19,10 @@ export default class Counter {
     </div>
   `
   constructor (props) {
-    this.count = props.count || 0
-    this.list = [1,2,3]
+    this.state = {
+      count: props.count || 0,
+      list: [1, 2, 3]
+    }
   }
 
   collatz (num) {
@@ -37,14 +38,16 @@ export default class Counter {
     return list
   }
   handleAdd () {
-    this.count++
-    this.list = this.collatz(this.count)
-    update(this)
+    this.set(state => {
+      state.count++
+      state.list = this.collatz(state.count)
+    })
   }
 
   handleReset () {
-    this.count = 0
-    this.list = []
-    update(this)
+    this.set(state => {
+      state.count = 0
+      state.list = []
+    })
   }
 }

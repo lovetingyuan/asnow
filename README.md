@@ -11,7 +11,9 @@ class Hello {
 }
 class Counter {
   constructor (props) {
-    this.count = props.init || 0
+    this.state = {
+      count: props.init || 0
+    }
   }
   static components = {
     'hello-world': Hello
@@ -23,7 +25,9 @@ class Counter {
     </div>
   `
   onAdd () {
-    this.count++
+    this.set(state => {
+      state.count++
+    })
   }
 }
 

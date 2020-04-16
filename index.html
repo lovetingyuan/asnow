@@ -6,13 +6,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>asnow example</title>
+  <script src="https://cdn.jsdelivr.net/npm/immer@6.0.3/dist/immer.umd.production.min.js"
+    integrity="sha256-XzFj6Rl1ywHrAiP0zA0SVo10SMUFWM0EaHjg0MHc51w=" crossorigin="anonymous"></script>
   <!-- <script>navigator.serviceWorker.register('./service-worker.js');</script> -->
 </head>
 
 <body>
   <div id="app"></div>
   <script src="./src/main.js" type="module"></script>
-
+  <script>
+    const baseState = {
+      list: [
+        {
+          todo: "Learn typescript",
+          done: true
+        },
+        {
+          todo: "Try immer",
+          done: false
+        }
+      ]
+    }
+    function a() {
+      this.list.push({ todo: "Tweet about it" })
+      this.list[1].done = true
+    }
+    const nextState = immer.produce(baseState, s => {
+      a.call(s)
+    })
+    console.log(baseState, nextState)
+  </script>
 </body>
 
 </html>
