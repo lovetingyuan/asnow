@@ -1,11 +1,9 @@
 export default class Timer {
   constructor() {
     const date = new Date()
-    this.state = {
-      time: date.toLocaleTimeString(),
-      markList: [],
-      stop: true
-    }
+    this.time = date.toLocaleTimeString()
+    this.markList = []
+    this.stop = true
   }
   static template = `
     <h2> 
@@ -22,7 +20,7 @@ export default class Timer {
     </h2>
   `
   toggle () {
-    if (this.state.stop) {
+    if (this.stop) {
       this.set(state => {
         state.stop = false
       })

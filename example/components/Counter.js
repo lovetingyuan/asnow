@@ -11,7 +11,7 @@ export default class Counter {
         <button @click="handleAdd">add</button>
         <button @click="handleReset">reset</button>
         
-        <ul>
+        <ul #if="list.length">
           <p>冰雹猜想</p>
           <li #for="(num) of list" data-num={num} style="float: left; margin: 0 20px;">{num}</li>
         </ul>
@@ -19,10 +19,8 @@ export default class Counter {
     </div>
   `
   constructor (props) {
-    this.state = {
-      count: props.count || 0,
-      list: [1, 2, 3]
-    }
+    this.count = props.count || 0
+    this.list = []
   }
 
   collatz (num) {
