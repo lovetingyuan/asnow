@@ -1,10 +1,11 @@
 export default class Timer {
-  constructor() {
+  constructor () {
     const date = new Date()
     this.time = date.toLocaleTimeString()
     this.markList = []
     this.stop = true
   }
+
   static template = `
     <h2> 
       timer: { time }
@@ -37,16 +38,19 @@ export default class Timer {
       clearInterval(this.timer)
     }
   }
+
   mark () {
     this.set(state => {
       state.markList.push(state.time)
     })
   }
+
   clear () {
     this.set(state => {
       state.markList = []
     })
   }
+
   onDel (i) {
     this.set(state => {
       state.markList.splice(i, 1)

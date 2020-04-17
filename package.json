@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint --fix lib"
+    "lint": "eslint --fix lib example"
   },
   "keywords": [],
   "author": "tingyuan",
@@ -17,6 +17,7 @@
       "es6": true,
       "node": true
     },
+    "parser": "babel-eslint",
     "extends": [
       "standard"
     ],
@@ -25,7 +26,7 @@
       "SharedArrayBuffer": "readonly"
     },
     "parserOptions": {
-      "ecmaVersion": 2018,
+      "ecmaVersion": 2020,
       "sourceType": "module"
     },
     "rules": {}

@@ -4,6 +4,7 @@ export default class Counter {
   static components = {
     'my-timer': Timer
   }
+
   static template = `
     <div class="counter">
       <my-timer></my-timer>
@@ -35,6 +36,7 @@ export default class Counter {
     }
     return list
   }
+
   handleAdd () {
     this.set(state => {
       state.count++
