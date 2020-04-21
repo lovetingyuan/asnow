@@ -8,7 +8,19 @@
   <title>asnow example</title>
   <script src="https://cdn.jsdelivr.net/npm/immer@6.0.3/dist/immer.umd.production.min.js"
     integrity="sha256-XzFj6Rl1ywHrAiP0zA0SVo10SMUFWM0EaHjg0MHc51w=" crossorigin="anonymous"></script>
-  <!-- <script>navigator.serviceWorker.register('./service-worker.js');</script> -->
+  <script type="importmap">
+    {
+      "imports": {
+        "asnow": "/lib/index.ts",
+        "foo": "/example/components/Timer.js"
+      }
+    }
+  </script>
+  <script>
+    navigator.serviceWorker.register('./sw.js').catch(err => {
+      console.error(err)
+    })
+  </script>
 </head>
 
 <body>

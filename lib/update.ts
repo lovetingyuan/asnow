@@ -1,4 +1,4 @@
-import { vmMap, renderComponent, renderElement } from './render.js'
+import { vmMap, renderComponent, renderElement } from './render'
 
 /**
  *

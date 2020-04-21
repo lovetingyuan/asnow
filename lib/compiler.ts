@@ -1,24 +1,39 @@
-function toDom (template) {
+import Component from '../types/Component'
+import Meta, { ElementMeta, ConditionMeta, LoopMeta, TextMeta, StaticMeta } from 'types/Meta'
+
+function toDom (template: string) {
   const div = document.createElement('div')
   const html = template.trim()
   div.innerHTML = html
   return div.firstElementChild
 }
 
-function toFunc (expression) {
-  return new Function(`with(this) { return (${expression}) }`) // eslint-disable-line
+function toFunc (expression: string) {
+  const func = new Function(`with(this) { return (${expression}) }`) // eslint-disable-line
+  return func as () => any
 }
 
-export default function compile (template, components = {}) {
+export default function compile (template: string, components = {}) {
   const domparser = new DOMParser()
   const doc = domparser.parseFromString(template.trim(), 'text/html')
-  return parseElement(doc.body.firstElementChild, components)
+  if (!doc.body.firstElementChild || doc.body.firstElementChild.nodeType !== 1) {
+    throw new Error(`invalid template: ${template}`)
+  }
+  return parseElement(doc.body.firstElementChild as HTMLElement, components)
 }
 
-function parseNode (node, components) {
-  if (node.nodeType === 3) {
+function isElement (node: Node): node is HTMLElement {
+  return node.nodeType === 1
+}
+
+function isText (node: Node): node is Text {
+  return node.nodeType === 3
+}
+
+function parseNode (node: Node, components: { [k: string]: Component }): Meta | undefined {
+  if (isText(node)) {
     return parseTextNode(node)
-  } else if (node.nodeType === 1) {
+  } else if (isElement(node)) {
     const component = components[node.tagName.toLowerCase()]
     if (component) {
       return parseComponent(node, component)
@@ -27,7 +42,7 @@ function parseNode (node, components) {
   }
 }
 
-function parseComponent (node, component) {
+function parseComponent (node: HTMLElement, component: Component) {
   const attrs = [...node.attributes]
   const propsExpression = '{' + attrs.map(({ name, value }) => {
     return `${JSON.stringify(name)}:(${value}),`
@@ -38,8 +53,8 @@ function parseComponent (node, component) {
   }
 }
 
-function parseTextNode (node) {
-  const text = node.textContent
+function parseTextNode (node: Text): TextMeta | StaticMeta {
+  const text = node.textContent || ''
   if (/\{[^}]+?\}/.test(text)) {
     return toFunc('`' + text.replace(/\{/g, '${') + '`')
   } else {
@@ -47,8 +62,10 @@ function parseTextNode (node) {
   }
 }
 const eventListnerExp = /^([^(]+?)\(([^)]+?)\)$/
-function parseElement (element, components) {
-  const meta = {}
+function parseElement (element: HTMLElement, components: { [k: string]: Component }) {
+  const meta: ElementMeta | ConditionMeta | LoopMeta = {
+    template: null as any
+  }
   const attrs = [...element.attributes]
   attrs.forEach(({ name, value }) => {
     value = value.trim()
@@ -66,30 +83,36 @@ function parseElement (element, components) {
 
     if (name[0] === '#') {
       if (name === '#if') {
-        meta.condition = toFunc(value)
-        element._if = value
-        meta.type = 'if'
+        let _meta = meta as ConditionMeta
+        _meta.condition = toFunc(value);
+        (element as any)._if = value;
+        _meta.type = 'if'
       } else if (name === '#else') {
+        let _meta = meta as ConditionMeta
         let ifElement = element.previousSibling
-        if (ifElement && ifElement.nodeType === 3 && !ifElement.textContent.trim()) {
+        if (
+          ifElement?.nodeType === 3 &&
+          !ifElement?.textContent?.trim()
+        ) {
           ifElement = ifElement.previousSibling
         }
-        if (!ifElement || !ifElement._if) {
+        if (!ifElement || !('_if' in ifElement)) {
           throw new Error('else must be next to if')
         }
-        meta.condition = toFunc(`!(${ifElement._if})`)
-        meta.type = 'else'
+        _meta.condition = toFunc(`!(${(ifElement as any)._if})`)
+        _meta.type = 'else'
       } else if (name === '#for') {
+        let _meta = meta as LoopMeta
         let [item, list] = value.split(/ of /).map(v => v.trim())
         let index
         if (/^\(.+\)$/.test(item)) {
           [item, index] = item.slice(1, -1).split(',').map(v => v.trim())
         }
-        meta.item = item
+        _meta.item = item
         if (index) {
-          meta.index = index
+          _meta.index = index
         }
-        meta.loop = toFunc(list)
+        _meta.loop = toFunc(list)
       }
       element.removeAttribute(name)
       return
@@ -102,7 +125,7 @@ function parseElement (element, components) {
   })
   if (element.childNodes.length) {
     element.childNodes.forEach(node => {
-      if (node.nodeType === 3 && !node.textContent.trim()) {
+      if (node.nodeType === 3 && !node?.textContent?.trim()) {
         // if (node.textContent[0] === '\n') {
         //   node.remove()
         //   return
@@ -116,7 +139,7 @@ function parseElement (element, components) {
     const childrenMeta = [...element.childNodes].map(node => parseNode(node, components)).filter(Boolean)
     const children = []
     for (let i = 0; i < childrenMeta.length; i++) {
-      const childMeta = childrenMeta[i]
+      const childMeta: Meta = childrenMeta[i]
       if (childMeta.condition) {
         const conditions = []
         if (childMeta.type === 'if') {

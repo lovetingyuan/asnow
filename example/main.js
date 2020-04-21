@@ -1,4 +1,6 @@
 import Counter from './components/Counter.js'
-import render from '../lib/index.js'
+import {
+  render
+} from 'asnow'
 
 render(Counter, '#app')
