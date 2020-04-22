@@ -1,5 +1,5 @@
 import { vmMap, renderComponent, renderElement } from './render'
-
+import * as immer from 'immer'
 /**
  *
  * meta: [
@@ -37,7 +37,7 @@ function updateList (node, meta) {
   let ctx = this
   if (!(meta.item in this)) {
     ctx = Object.create(this, {
-      [window.immer.immerable]: { value: true }
+      [immer.immerable]: { value: true }
     })
   }
   const updateLen = Math.min(originLen, list.length)

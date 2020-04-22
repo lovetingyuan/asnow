@@ -2,12 +2,11 @@
   "name": "asnow",
   "version": "0.0.1",
   "description": "asnow",
-  "main": "lib/index.js",
+  "main": "lib/index.ts",
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint --fix lib example",
-    "start": "npx parcel example/index.html --cache-dir node_modules/.cache/parcel"
+    "lint": "eslint --fix example/**/*.js lib/*.ts"
   },
   "keywords": [],
   "author": "tingyuan",
@@ -22,29 +21,40 @@
     "extends": [
       "standard"
     ],
-    "globals": {
-      "Atomics": "readonly",
-      "SharedArrayBuffer": "readonly"
-    },
+    "globals": {},
     "parserOptions": {
       "ecmaVersion": 2020,
       "sourceType": "module"
     },
+    "overrides": [
+      {
+        "files": [
+          "*.ts"
+        ],
+        "parser": "@typescript-eslint/parser",
+        "parserOptions": {
+          "project": "./tsconfig.json"
+        },
+        "extends": [
+          "standard-with-typescript"
+        ]
+      }
+    ],
     "rules": {}
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^4.1.1",
-    "babel-core": "^6.26.3",
+    "@typescript-eslint/eslint-plugin": "^2.29.0",
     "babel-eslint": "^10.1.0",
-    "babel-preset-env": "^1.7.0",
     "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.1",
+    "eslint-config-standard-with-typescript": "^15.0.1",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
-    "parcel-bundler": "^1.12.4",
-    "rollup": "^2.6.1",
     "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "immer": "^6.0.3"
   }
 }

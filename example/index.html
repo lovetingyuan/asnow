@@ -6,13 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>asnow example</title>
-  <script src="https://cdn.jsdelivr.net/npm/immer@6.0.3/dist/immer.umd.production.min.js"
-    integrity="sha256-XzFj6Rl1ywHrAiP0zA0SVo10SMUFWM0EaHjg0MHc51w=" crossorigin="anonymous"></script>
+  <script>
+    window.process = {
+      env: {
+        NODE_ENV: 'development'
+      }
+    }
+  </script>
   <script type="importmap">
     {
       "imports": {
         "asnow": "/lib/index.ts",
-        "foo": "/example/components/Timer.js"
+        "immer": "/node_modules/immer/dist/immer.esm.js"
       }
     }
   </script>

@@ -54,7 +54,7 @@ function parseComponent (node: HTMLElement, component: Component) {
 }
 
 function parseTextNode (node: Text): TextMeta | StaticMeta {
-  const text = node.textContent || ''
+  const text = node.textContent ?? ''
   if (/\{[^}]+?\}/.test(text)) {
     return toFunc('`' + text.replace(/\{/g, '${') + '`')
   } else {
@@ -70,7 +70,7 @@ function parseElement (element: HTMLElement, components: { [k: string]: Componen
   attrs.forEach(({ name, value }) => {
     value = value.trim()
     if (name[0] === '@') {
-      meta.actions = meta.actions || {}
+      meta.actions = meta.actions ?? {}
       const actionExp = value.match(eventListnerExp)
       if (actionExp) {
         meta.actions[name.slice(1)] = [actionExp[1].trim(), toFunc('[' + actionExp[2] + ']')]
@@ -83,12 +83,12 @@ function parseElement (element: HTMLElement, components: { [k: string]: Componen
 
     if (name[0] === '#') {
       if (name === '#if') {
-        let _meta = meta as ConditionMeta
+        const _meta = meta as ConditionMeta
         _meta.condition = toFunc(value);
-        (element as any)._if = value;
+        (element as any)._if = value
         _meta.type = 'if'
       } else if (name === '#else') {
-        let _meta = meta as ConditionMeta
+        const _meta = meta as ConditionMeta
         let ifElement = element.previousSibling
         if (
           ifElement?.nodeType === 3 &&
@@ -102,7 +102,7 @@ function parseElement (element: HTMLElement, components: { [k: string]: Componen
         _meta.condition = toFunc(`!(${(ifElement as any)._if})`)
         _meta.type = 'else'
       } else if (name === '#for') {
-        let _meta = meta as LoopMeta
+        const _meta = meta as LoopMeta
         let [item, list] = value.split(/ of /).map(v => v.trim())
         let index
         if (/^\(.+\)$/.test(item)) {
@@ -118,7 +118,7 @@ function parseElement (element: HTMLElement, components: { [k: string]: Componen
       return
     }
     if (value[0] === '{' && value[value.length - 1] === '}') {
-      meta.bindings = meta.bindings || {}
+      meta.bindings = meta.bindings ?? {}
       meta.bindings[name] = toFunc(value.slice(1, -1))
       element.removeAttribute(name)
     }
@@ -145,7 +145,7 @@ function parseElement (element: HTMLElement, components: { [k: string]: Componen
         if (childMeta.type === 'if') {
           conditions.push(childMeta)
           const nextChildMeta = childrenMeta[i + 1]
-          if (nextChildMeta && nextChildMeta.condition && nextChildMeta.type === 'else') {
+          if (nextChildMeta?.condition && nextChildMeta.type === 'else') {
             conditions.push(nextChildMeta)
             i++
           }

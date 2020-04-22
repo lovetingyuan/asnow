@@ -2,16 +2,18 @@ import compile from './compiler'
 import update from './update'
 import Meta, { ComponentMeta, LoopMeta, ElementMeta } from 'types/Meta'
 import Component, { ParsedComponent } from 'types/Component'
+import * as immer from 'immer'
+
 export const vmMap: {
   [k: string]: any
 } = {}
 
 function isComponentMeta (v: any): v is ComponentMeta {
-  return v && v.component
+  return v?.component
 }
 
 function isLoopMeta (v: any): v is LoopMeta {
-  return v && v.loop
+  return v?.loop
 }
 
 function renderNode (this: any, meta: Meta) {
@@ -40,7 +42,7 @@ function renderNode (this: any, meta: Meta) {
     if (index === -1) {
       return document.createComment('if')
     }
-    let _meta = meta[index]
+    const _meta = meta[index]
     let node
     // if (_meta.component) {
     //   node = renderComponent(_meta.component, _meta.props.call(this))
@@ -61,7 +63,7 @@ function renderNode (this: any, meta: Meta) {
     let ctx = this
     if (!(meta.item in this)) {
       ctx = Object.create(this, {
-        [window.immer.immerable]: { value: true }
+        [immer.immerable]: { value: true }
       })
     }
     list.forEach((item, index) => {
@@ -92,10 +94,10 @@ function renderNode (this: any, meta: Meta) {
 
 export function renderElement (this: any, meta: ElementMeta) {
   const node = meta.template.cloneNode(true) as HTMLElement
-  for (const [k, v] of Object.entries(meta.bindings || {})) {
+  for (const [k, v] of Object.entries(meta.bindings ?? {})) {
     node.setAttribute(k, v.call(this) + '')
   }
-  for (const [k, v] of Object.entries(meta.actions || {})) {
+  for (const [k, v] of Object.entries(meta.actions ?? {})) {
     let args: any[] = []
     let name: string
     if (Array.isArray(v)) {
@@ -111,7 +113,7 @@ export function renderElement (this: any, meta: ElementMeta) {
     node._actions = {}
     node._actions[k] = handler
   }
-  for (const child of (meta.children || [])) {
+  for (const child of (meta.children ?? [])) {
     const _node = renderNode.call(this, child)
     if (_node) {
       node.appendChild(_node)
@@ -127,11 +129,11 @@ function isParsedComponent (v: any): v is typeof ParsedComponent {
 export function renderComponent (component: typeof Component, props: any) {
   const vmid = component.name + '_' + Math.random()
   if (!isParsedComponent(component)) {
-    let _component = component as typeof ParsedComponent
+    const _component = component as typeof ParsedComponent
     _component.meta = compile(_component.template, _component.components)
-    ;(_component as any)[window.immer.immerable] = true
+    ;(_component as any)[immer.immerable] = true
     _component.prototype.set = function set (updater) {
-      const nextState = window.immer.produce(this, updater)
+      const nextState = immer.produce(this, updater)
       if (this !== nextState) {
         if (Object.prototype.hasOwnProperty.call(this, '_vmid')) {
           Object.assign(this, nextState)
@@ -142,7 +144,7 @@ export function renderComponent (component: typeof Component, props: any) {
       }
     }
   }
-  let Component = component as typeof ParsedComponent
+  const Component = component as typeof ParsedComponent
   const vm = new Component(props)
   Object.defineProperty(vm, '_vmid', { value: vmid })
   const node = renderElement.call(vm, Component.meta)
