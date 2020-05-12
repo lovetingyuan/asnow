@@ -13,7 +13,7 @@ export default class Counter {
         <button @click="handleReset">reset</button>
         
         <ul #if="list.length">
-          <p>冰雹猜想</p>
+          <p>冰雹猜想 {max}, { list.length }</p>
           <li #for="(num) of list" data-num={num} style="float: left; margin: 0 20px;">{num}</li>
         </ul>
       </div>
@@ -22,6 +22,7 @@ export default class Counter {
   constructor (props) {
     this.count = props.count || 0
     this.list = []
+    this.max = 1
   }
 
   collatz (num) {
@@ -41,6 +42,7 @@ export default class Counter {
     this.set(state => {
       state.count++
       state.list = this.collatz(state.count)
+      state.max = Math.max(...state.list)
     })
   }
 
