@@ -1,23 +1,16 @@
-import { ElementMeta } from "./Meta"
+import { ElementMeta } from './Meta'
 
-export default class Component {
-  constructor (props: any) {
-    return {} as any
-  }
-  static template: string
-  static components?: {
-    [k: string]: Component
-  }
+export interface ComponentClass {
+  new (p: any): any
+  template: string
+  name?: string
+  components?: Record<string, ComponentClass>
 }
 
-export class ParsedComponent extends Component {
-  static meta: ElementMeta
-  set (updater: (state: any) => any) {
-
-  }
-  [index: string]: any
+export interface CompiledComponentClass extends ComponentClass {
+  meta: ElementMeta
 }
 
-export type ComponentsMap = {
-  [k: string]: Component
+export interface VM {
+  [k: string]: any
 }

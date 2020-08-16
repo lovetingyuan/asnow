@@ -1,42 +1,54 @@
 import {
-  ParsedComponent
-} from "./Component"
+  CompiledComponentClass
+} from './Component'
 
 export interface TextMeta {
-  (): string
+  type: 'text'
+  text: string | (() => string)
+  static?: boolean
 }
 
 export interface ElementMeta {
-  template: HTMLElement
+  type: 'element'
+  element: HTMLElement
+  static?: boolean
   bindings?: {
     [k: string]: () => string
-  },
+  }
   actions?: {
-    [k: string]: string | [string, () => any[]]
-  },
+    [k: string]: [string, (() => any[])?]
+  }
   children?: Meta[]
 }
 
-export interface ConditionMeta extends ElementMeta {
-  condition: () => boolean
-  type: 'if' | 'elif' | 'else'
+export interface ConditionMeta {
+  type: 'condition'
+  conditions: {
+    type: 'else' | 'if' | 'elif'
+    condition: () => boolean
+    node: ElementMeta | ComponentMeta
+  }[]
 }
 
-export interface LoopMeta extends ElementMeta {
+export interface LoopMeta {
+  type: 'loop'
   loop: () => any[]
   item: string
   index?: string
+  node: ElementMeta | ComponentMeta
 }
 
 export interface ComponentMeta {
-  component: ParsedComponent,
-  props: { [k: string]: any } | (() => { [k: string]: any })
+  type: 'component'
+  component: CompiledComponentClass
+  props: () => { [k: string]: any }
 }
 
-export type ConditionBlockMeta = ConditionMeta[]
+// export type StaticMeta = {
+//   type: 'static'
+//   node: HTMLElement | string
+// }
 
-export type StaticMeta = HTMLElement | string
-
-type Meta = ElementMeta | TextMeta | StaticMeta | ConditionBlockMeta | LoopMeta | ComponentMeta
+type Meta = ElementMeta | TextMeta | ConditionMeta | LoopMeta | ComponentMeta
 
 export default Meta

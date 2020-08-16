@@ -1,8 +1,16 @@
+import { update } from 'asnow'
+
 export default class Timer {
+  time: string
+  markList: string[]
+  stop: boolean
+  timer?: any
   constructor () {
     const date = new Date()
     this.time = date.toLocaleTimeString()
-    this.markList = []
+    this.markList = [
+      'init 1', 'init 2'
+    ]
     this.stop = true
   }
 
@@ -12,9 +20,8 @@ export default class Timer {
       <button @click="toggle">{ stop ? 'start' : 'stop' }</button>
       <span #if="!stop">
         <button @click="mark">mark</button>
+        <button @click="clear">clear</button>
       </span>
-      <button @click="clear">clear</button>
-
       <ol>
         <li #for="(t, i) of markList">{t} <span style="cursor: pointer" @click="onDel(i)">×</span></li>
       </ol>
@@ -22,38 +29,37 @@ export default class Timer {
   `
   toggle () {
     if (this.stop) {
-      this.set(state => {
-        state.stop = false
-      })
+      update(this, { stop: false })
       this.timer = setInterval(() => {
         const date = new Date()
-        this.set(state => {
-          state.time = date.toLocaleTimeString()
+        update(this, {
+          time: date.toLocaleTimeString()
         })
       }, 999)
     } else {
-      this.set(state => {
-        state.stop = true
-      })
+      update(this, { stop: true })
       clearInterval(this.timer)
     }
   }
 
   mark () {
-    this.set(state => {
-      state.markList.push(state.time)
+    update(this, {
+      markList: this.markList.concat(this.time)
     })
   }
 
   clear () {
-    this.set(state => {
-      state.markList = []
+    update(this, {
+      markList: []
     })
   }
 
   onDel (i) {
-    this.set(state => {
-      state.markList.splice(i, 1)
-    })
+    console.log('del' + i)
+    // this.set(state => {
+    //   state.markList.splice(i, 1)
+    // })
   }
 }
+
+console.log(Timer)

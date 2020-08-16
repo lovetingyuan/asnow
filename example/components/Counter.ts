@@ -1,4 +1,5 @@
-import Timer from './Timer.js'
+import Timer from './Timer'
+import { update } from 'asnow'
 
 export default class Counter {
   static components = {
@@ -11,18 +12,18 @@ export default class Counter {
       <div>counter: { count } 
         <button @click="handleAdd">add</button>
         <button @click="handleReset">reset</button>
-        
-        <ul #if="list.length">
+        <!-- <ul #if="list.length">
           <p>冰雹猜想 {max}, { list.length }</p>
           <li #for="(num) of list" data-num={num} style="float: left; margin: 0 20px;">{num}</li>
-        </ul>
+        </ul> -->
       </div>
     </div>
   `
+  count: 0
+  list: []
+  max: 1
   constructor (props) {
     this.count = props.count || 0
-    this.list = []
-    this.max = 1
   }
 
   collatz (num) {
@@ -39,17 +40,12 @@ export default class Counter {
   }
 
   handleAdd () {
-    this.set(state => {
-      state.count++
-      state.list = this.collatz(state.count)
-      state.max = Math.max(...state.list)
+    update(this, {
+      count: this.count + 1
     })
   }
 
   handleReset () {
-    this.set(state => {
-      state.count = 0
-      state.list = []
-    })
+    update(this, { count: 0 })
   }
 }
