@@ -15,17 +15,18 @@ export default class Timer {
   }
 
   static template = `
-    <h2> 
-      timer: { time }
+    <div> 
+      time: { time }
       <button @click="toggle">{ stop ? 'start' : 'stop' }</button>
       <span #if="!stop">
         <button @click="mark">mark</button>
         <button @click="clear">clear</button>
       </span>
-      <ol>
-        <li #for="(t, i) of markList">{t} <span style="cursor: pointer" @click="onDel(i)">×</span></li>
+      <ol #if="markList.length">
+        <li #for="(t, i) of markList" data-index="{i}">{t} <span style="cursor: pointer" @click="onDel(i)">×</span></li>
       </ol>
-    </h2>
+      <p #else><i>No time records.</i></p>
+    </div>
   `
   toggle () {
     if (this.stop) {
@@ -54,12 +55,10 @@ export default class Timer {
     })
   }
 
-  onDel (i) {
-    console.log('del' + i)
-    // this.set(state => {
-    //   state.markList.splice(i, 1)
-    // })
+  onDel (i: number) {
+    this.markList.splice(i, 1)
+    update(this, {
+      markList: this.markList
+    })
   }
 }
-
-console.log(Timer)

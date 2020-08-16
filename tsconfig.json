@@ -19,10 +19,16 @@
     "downlevelIteration": true,
     "noEmit": true,
     "jsx": "react",
-    "baseUrl": "./"
+    "baseUrl": ".",
+    "typeRoots": [
+      "node_modules/@types",
+      "./types"
+    ],
+    "paths": {
+      "types": ["./types/*"]
+    }
   },
-  "include": [
-    "lib/**/*.ts",
-    "types/*.ts"
+  "files": [
+    "lib/index.ts"
   ]
 }

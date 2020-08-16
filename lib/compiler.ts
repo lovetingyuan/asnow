@@ -1,6 +1,6 @@
 import Meta, { ElementMeta, ConditionMeta, LoopMeta, TextMeta, ComponentMeta } from 'types/Meta'
 import { ComponentClass, CompiledComponentClass } from 'types/Component'
-import { isElement, isText, toFunc, isComponent } from './utils'
+import { isElement, isText, toFunc, isComponent, CamelToHyphen } from './utils'
 
 export default function compile (component: ComponentClass) {
   if ('meta' in component) return component as CompiledComponentClass
@@ -12,7 +12,16 @@ export default function compile (component: ComponentClass) {
   if (doc.body.childNodes.length !== 1) {
     throw new Error('Component template must only have one root element.' + component.name)
   }
-  const meta = parseElement(doc.body.firstElementChild as HTMLElement, component.components || {})
+  const componentsMap = component.components || {}
+  Object.keys(componentsMap).forEach(name => {
+    if (!isComponent(name)) {
+      const comp = componentsMap[name]
+      delete componentsMap[name]
+      componentsMap[CamelToHyphen(name)] = comp
+    }
+  })
+  component.components = componentsMap
+  const meta = parseElement(doc.body.firstElementChild as HTMLElement, componentsMap)
   const compiledComponent = component as CompiledComponentClass
   compiledComponent.meta = meta
   return compiledComponent

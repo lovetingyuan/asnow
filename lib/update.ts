@@ -3,23 +3,20 @@ import { VM, CompiledComponentClass } from 'types/Component'
 import Meta, { ElementMeta, ConditionMeta, LoopMeta, ComponentMeta } from 'types/Meta'
 import { isElement, isComment, isText, createLoopCtx } from './utils'
 
-function assertNodeType(meta: Meta, node: Node) {
-  let error = false
-  if (meta.type === 'element' && !isElement(node)) error = true
-  if (meta.type === 'component' && (!isElement(node) || !node.dataset.vmid)) error = true
+function assertNodeType (meta: Meta, node: Node) {
+  if (meta.type === 'element' && isElement(node)) return node
+  if (meta.type === 'component' && isElement(node) && node.dataset.vmid) return node
   if (meta.type === 'condition') {
-    if (isComment(node)) return
-    if (!isElement(node) || typeof (node as any)._if !== 'number') error = true
+    if (isComment(node)) return node
+    if (isElement(node) && typeof (node as any)._if === 'number') return node
   }
   if (meta.type === 'loop') {
-    if (isComment(node)) return
-    if (!isElement(node) || typeof (node as any)._for !== 'number') error = true
+    if (isComment(node)) return node
+    if (isElement(node) && typeof (node as any)._for === 'number') return node
   }
-  if (meta.type === 'text' && !isText(node)) error = true
-  if (error) {
-    if (process.env.NODE_ENV === 'development') console.error(meta, node)
-    throw new Error('Unmatched meta and node')
-  }
+  if (meta.type === 'text' && isText(node)) return node
+  if (process.env.NODE_ENV === 'development') console.error(meta, node)
+  throw new Error('Unmatched meta and node')
 }
 
 function updateElement(this: VM, element: HTMLElement, meta: ElementMeta) {
@@ -35,27 +32,23 @@ function updateElement(this: VM, element: HTMLElement, meta: ElementMeta) {
     for (let i = 0, j = 0; i < meta.children.length; i++, j++) {
       const childMeta = meta.children[i]
       const childNode = childNodes[j]
+      assertNodeType(childMeta, childNode)
       if (childMeta.type === 'element') {
-        assertNodeType(childMeta, childNode)
         updateElement.call(this, childNode as HTMLElement, childMeta)
       } else if (childMeta.type === 'text') {
-        assertNodeType(childMeta, childNode)
         if (typeof childMeta.text === 'function') {
           const oldText = childNode.textContent
           const newText = childMeta.text.call(this)
           if (oldText !== newText) childNode.textContent = newText
         }
       } else if (childMeta.type === 'component') {
-        assertNodeType(childMeta, childNode)
         updateComponent.call(this, childNode as HTMLElement, childMeta)
       } else if (childMeta.type === 'condition') {
         assertNodeType(childMeta, childNode)
-        updateCondition.call(this, childNode, childMeta)
+        updateCondition.call(this, childNode as HTMLElement | Comment, childMeta)
       } else if (childMeta.type === 'loop') {
-        assertNodeType(childMeta, childNode)
-        const len = updateLoop.call(this, childNode, childMeta)
-        console.log(len)
-        j += len - 1
+        j = j + ((childNode as any)._for || 1) - 1
+        updateLoop.call(this, childNode as HTMLElement | Comment, childMeta)
       }
     }
   }
@@ -115,7 +108,7 @@ function updateELementOrComponent(this: VM, element: HTMLElement, meta: ElementM
   }
 }
 
-function updateCondition(this: VM, childNode: ChildNode, childMeta: ConditionMeta) {
+function updateCondition(this: VM, childNode: HTMLElement | Comment, childMeta: ConditionMeta) {
   const targetIndex = childMeta.conditions.findIndex(({ condition }) => condition.call(this))
   if (targetIndex === -1) {
     if (isComment(childNode)) return
@@ -140,20 +133,22 @@ function updateCondition(this: VM, childNode: ChildNode, childMeta: ConditionMet
   }
 }
 
-function updateLoop(this: VM, childNode: ChildNode, childMeta: LoopMeta): number {
+function updateLoop(this: VM, childNode: HTMLElement | Comment, childMeta: LoopMeta) {
   const list = childMeta.loop.call(this)
+  const parent = childNode.parentElement
+  if (!parent) throw new Error('Unexpected update error')
   if (list.length === 0) {
-    if (isComment(childNode)) return 1
+    if (isComment(childNode)) return
     const element = childNode as HTMLElement
     const prevLen = (element as any)._for as number
     let i = prevLen
     while (--i) {
-      const el = element.nextElementSibling
-      if (!el) throw new Error('Error in #for update')
+      const el = element.nextSibling
+      if (!isElement(el)) throw new Error('Error in #for update')
       cleanElement(el as HTMLElement, true)
     }
     cleanElement(element, document.createComment('for'))
-    return prevLen
+    return
   }
   if (isComment(childNode)) {
     const frag = document.createDocumentFragment()
@@ -163,20 +158,19 @@ function updateLoop(this: VM, childNode: ChildNode, childMeta: LoopMeta): number
       if (index === 0) (element as any)._for = list.length
       frag.appendChild(element)
     })
-    childNode.insertBefore(frag, childNode)
+    parent.insertBefore(frag, childNode)
     childNode.remove()
-    return 1
+    return
   }
-  if (!isElement(childNode)) throw new Error('#for node must be element')
   const prevLen = (childNode as any)._for as number
   const updateLen = Math.min(prevLen, list.length)
-  let element = childNode, i = 0, parent = childNode.parentElement
+  let element: Node | null = childNode, i = 0
   for (; i < updateLen; i++) {
-    if (!element) throw new Error('error in #for update')
+    if (!isElement(element)) throw new Error('error in #for update')
     const ctx = createLoopCtx.call(this, childMeta, list[i], i)
     updateELementOrComponent.call(ctx, element, childMeta.node)
     if (i === 0) (element as any)._for = list.length
-    element = element.nextElementSibling as HTMLElement
+    element = element.nextSibling
   }
   if (prevLen < list.length) { // need to add new element
     const frag = document.createDocumentFragment()
@@ -186,31 +180,30 @@ function updateLoop(this: VM, childNode: ChildNode, childMeta: LoopMeta): number
       frag.appendChild(el)
     }
     if (element) {
-      element.insertBefore(frag, element)
+      parent.insertBefore(frag, element)
     } else {
-      parent?.appendChild(frag)
+      parent.appendChild(frag)
     }
   } else if (prevLen > list.length) { // need to remove element
-    if (!element) throw new Error('Error in #for update')
+    if (!isElement(element)) throw new Error('Error in #for update')
     for (; i < prevLen - 1; i++) {
-      const el = element.nextElementSibling as HTMLElement
-      if (!el) throw new Error('Error in #for update')
+      const el = element.nextSibling
+      if (!isElement(el)) throw new Error('Error in #for update')
       cleanElement(el, true)
     }
     cleanElement(element, true)
   }
-  return prevLen
 }
 
 export default function update(vm: VM, newState?: { [k: string]: any }) {
   const newVm = Object.assign(vm, newState)
   const vmid = vm[vmidSymbol as any] as string
   const element = document.querySelector(`[data-vmid="${vmid}"]`)
-  if (!element) {
+  if (!isElement(element)) {
     throw new Error('Failed to update ' + vmid)
   }
   const component = vm.constructor as CompiledComponentClass
   const meta = component.meta
 
-  updateElement.call(newVm, element as HTMLElement, meta)
+  updateElement.call(newVm, element, meta)
 }

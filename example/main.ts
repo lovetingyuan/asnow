@@ -1,6 +1,6 @@
-import Counter from './components/Counter'
+import App from './app'
 import {
   render
 } from 'asnow'
 
-render(Counter, '#app')
+render(App, '#app')

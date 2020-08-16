@@ -49,6 +49,14 @@ export interface ComponentMeta {
 //   node: HTMLElement | string
 // }
 
+export interface MetaNode {
+  'element': HTMLElement
+  'component': HTMLElement
+  'text': Text
+  'condition': HTMLElement | Comment
+  'loop': HTMLElement | Comment
+}
+
 type Meta = ElementMeta | TextMeta | ConditionMeta | LoopMeta | ComponentMeta
 
 export default Meta

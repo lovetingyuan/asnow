@@ -1,21 +1,22 @@
-# asnow
+## asnow
 
 A simple UI library(WIP).
 
 example: 
 ```javascript
+import { render, update } from 'asnow'
+
 class Hello {
   static template = `
   <h2>Hello world</h2>
   `
 }
+
 class Counter {
   constructor (props) {
     this.count = props.init || 0
   }
-  static components = {
-    'hello-world': Hello
-  }
+  static components = { Hello }
   static template = `
     <div>
       <hello-world></hello-world>
@@ -23,8 +24,8 @@ class Counter {
     </div>
   `
   onAdd () {
-    this.set(state => {
-      state.count++
+    update(this, {
+      count: this.count + 1
     })
   }
 }
