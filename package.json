@@ -5,13 +5,28 @@
   "main": "lib/index.ts",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env NODE_ENV=unit_test jest"
   },
   "keywords": [],
   "author": "tingyuan",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^3.9.7",
-    "@types/node": "^14.0.27"
+    "@types/jest": "^26.0.10",
+    "@types/node": "^14.0.27",
+    "cross-env": "^7.0.2",
+    "jest": "^26.4.0",
+    "ts-jest": "^26.2.0",
+    "typescript": "^3.9.7"
+  },
+  "jest": {
+    "preset": "ts-jest/presets/js-with-ts",
+    "testMatch": [
+      "<rootDir>/tests/**/*.test.js"
+    ],
+    "collectCoverage": true,
+    "coverageDirectory": "tests/coverage",
+    "moduleNameMapper": {
+      "^types/(.*)$": "<rootDir>/types/$1"
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { VMap, vmidSymbol, renderComponent, renderElement } from './render'
+import { VMap, vmidSymbol, renderComponent, renderElement, propsSymbol } from './render'
 import { VM, CompiledComponentClass } from 'types/Component'
 import Meta, { ElementMeta, ConditionMeta, LoopMeta, ComponentMeta } from 'types/Meta'
 import { isElement, isComment, isText, createLoopCtx } from './utils'
@@ -67,6 +67,7 @@ function cleanElement(element: HTMLElement, remove: true | HTMLElement | Comment
     if (typeof vm.BeforeRemove === 'function') {
       vm.BeforeRemove()
     }
+    VMap.delete(vmid)
   })
   listeners.forEach((el) => {
     const listenersMap: Record<string, (e: Event) => any> = (el as any)._listeners
@@ -84,12 +85,10 @@ function cleanElement(element: HTMLElement, remove: true | HTMLElement | Comment
 function updateComponent(this: VM, element: HTMLElement, meta: ComponentMeta) {
   const vmid = element.dataset.vmid as string
   const vm = VMap.get(vmid)
-  if (!vm) {
-    throw new Error(`Can not find vm instance of ${vmid}`)
-  }
+  if (!vm) throw new Error(`Can not find vm instance of ${vmid}`)
   const newProps = meta.props.call(this)
   if (typeof vm.PropsUpdate === 'function') {
-    vm.PropsUpdate(newProps)
+    vm.PropsUpdate(newProps, vm[propsSymbol as any])
   }
 }
 
@@ -140,9 +139,8 @@ function updateLoop(this: VM, childNode: HTMLElement | Comment, childMeta: LoopM
   if (list.length === 0) {
     if (isComment(childNode)) return
     const element = childNode as HTMLElement
-    const prevLen = (element as any)._for as number
-    let i = prevLen
-    while (--i) {
+    let prevLen = (element as any)._for as number
+    while (--prevLen) {
       const el = element.nextSibling
       if (!isElement(el)) throw new Error('Error in #for update')
       cleanElement(el as HTMLElement, true)

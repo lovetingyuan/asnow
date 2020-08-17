@@ -78,9 +78,10 @@ export function renderElement (this: object, meta: ElementMeta): HTMLElement {
 
 export const VMap: Map<string, VM> = new Map()
 export const vmidSymbol = Symbol('vmid')
+export const propsSymbol = Symbol('props')
 
 if (process.env.NODE_ENV === 'development') {
-  console.log('vmmap', VMap)
+  (window as any)._vmap = VMap
 }
 
 export function renderComponent (this: object, meta: ComponentMeta): HTMLElement {
@@ -89,6 +90,7 @@ export function renderComponent (this: object, meta: ComponentMeta): HTMLElement
   const vm = new Component(props)
   const vmid = (Component.name as string) + '-' + VMap.size
   vm[vmidSymbol] = vmid
+  vm[propsSymbol] = props
   VMap.set(vmid, vm)
   const element = renderElement.call(vm, Component.meta)
   element.dataset.vmid = vmid

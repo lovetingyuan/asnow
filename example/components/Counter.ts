@@ -15,18 +15,11 @@ export default class Counter {
   constructor (props) {
     this.count = props.count || 0
   }
-
-  collatz (num) {
-    const list = [num]
-    while (num !== 1) {
-      if (num % 2) {
-        num = num * 3 + 1
-      } else {
-        num = num / 2
-      }
-      list.push(num)
-    }
-    return list
+  PropsUpdate(newProps, old) {
+    console.log('update', newProps.count, old.count, newProps === old)
+  }
+  BeforeRemove() {
+    console.log('remove')
   }
 
   handleAdd () {

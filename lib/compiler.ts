@@ -27,27 +27,6 @@ export default function compile (component: ComponentClass) {
   return compiledComponent
 }
 
-function parseNode (node: Node | HTMLElement[], components: Record<string, ComponentClass>): Meta {
-  if (Array.isArray(node)) {
-    return parseConditions(node, components)
-  } else {
-    if (node.nodeType === 3) {
-      return parseTextNode(node as Text)
-    } else if (node.nodeType === 1) {
-      const element = node as HTMLElement
-      if (isComponent(element)) {
-        return parseComponent(element, components)
-      }
-      if (element.hasAttribute('#for')) {
-        return parseLoop(element, components)
-      }
-      return parseElement(element, components)
-    } else {
-      throw new Error('Unknown node type: ' + node)
-    }
-  }
-}
-
 function parseConditions (elements: HTMLElement[], components: Record<string, ComponentClass>): ConditionMeta {
   const conditionMeta: ConditionMeta = {
     type: 'condition',
@@ -87,6 +66,12 @@ function parseConditions (elements: HTMLElement[], components: Record<string, Co
 function parseComponent (node: HTMLElement, components: Record<string, ComponentClass>): ComponentMeta {
   const attrs = [...node.attributes]
   const propsExpression = '{' + attrs.map(({ name, value }) => {
+    value = value.trim()
+    if (value[0] === '{' && value[value.length - 1] === '}') {
+      value = value.slice(1, -1)
+    } else {
+      value = JSON.stringify(value)
+    }
     return `${JSON.stringify(name)}:(${value}),`
   }) + '}'
   const tagName = node.tagName.toLowerCase()
@@ -134,40 +119,15 @@ function parseLoop (element: HTMLElement, components: Record<string, ComponentCl
   return loopMeta
 }
 
-function parseElement (element: HTMLElement, components: Record<string, ComponentClass>): ElementMeta {
-  const eventListnerExp = /^([^(]+?)\(([^)]+?)\)$/
-  let actions: ElementMeta['actions']
-  let bindings: ElementMeta['bindings']
-  const attrs = [...element.attributes]
-  attrs.forEach(({ name, value }) => {
-    value = value.trim()
-    if (name[0] === '@') {
-      actions = actions || {}
-      const actionExp = value.match(eventListnerExp)
-      if (actionExp) {
-        actions[name.slice(1)] = [actionExp[1].trim(), toFunc('[' + actionExp[2] + ']')]
-      } else {
-        actions[name.slice(1)] = [value]
-      }
-      element.removeAttribute(name)
-      return
-    }
-    if (value[0] === '{' && value[value.length - 1] === '}') {
-      bindings = bindings || {}
-      bindings[name] = toFunc(value.slice(1, -1))
-      element.removeAttribute(name)
-      return
-    }
-  })
+function parseChildren(childNodes: ChildNode[], components: Record<string, ComponentClass>) {
   const childrenMeta: Meta[] = []
   // let staticCount = 0
-  const childNodes = [...element.childNodes]
   const conditionNodes: HTMLElement[] = []
   for (let i = 0; i < childNodes.length; i++) {
     const child = childNodes[i]
     if (!isElement(child) && !isText(child)) continue
     // blank, if, elif, else, other
-    if (isElement(child)) {
+    if (isElement(child)) { // handle directives at first
       if (child.hasAttribute('#if')) {
         if (conditionNodes.length) {
           childrenMeta.push(parseConditions([...conditionNodes], components))
@@ -193,21 +153,25 @@ function parseElement (element: HTMLElement, components: Record<string, Componen
           childrenMeta.push(parseConditions([...conditionNodes], components))
           conditionNodes.length = 0
         }
-        childrenMeta.push(parseNode(child, components))
+        if (child.hasAttribute('#for')) {
+          childrenMeta.push(parseLoop(child, components))
+        } else if (isComponent(child)) {
+          childrenMeta.push(parseComponent(child, components))
+        } else {
+          childrenMeta.push(parseElement(child, components))
+        }
       }
-    } else {
+    } else if (isText(child)) {
       if (child.textContent?.trim()) {
         if (conditionNodes.length) {
           childrenMeta.push(parseConditions(conditionNodes.slice(), components))
           conditionNodes.length = 0
         }
         childrenMeta.push(parseTextNode(child))
-      } else {
-        if (!conditionNodes.length) { // else ignore blank node between condition nodes
-          childrenMeta.push({
-            type: 'text', static: true, text: ' '
-          })
-        }
+      } else if (!conditionNodes.length) { // else ignore blank node between condition nodes
+        childrenMeta.push({
+          type: 'text', static: true, text: ' '
+        })
       }
     }
   }
@@ -215,6 +179,34 @@ function parseElement (element: HTMLElement, components: Record<string, Componen
     childrenMeta.push(parseConditions([...conditionNodes], components))
     conditionNodes.length = 0
   }
+  return childrenMeta
+}
+
+function parseElement (element: HTMLElement, components: Record<string, ComponentClass>): ElementMeta {
+  const eventListnerExp = /^([^(]+?)\(([^)]+?)\)$/
+  let actions: ElementMeta['actions']
+  let bindings: ElementMeta['bindings']
+  const attrs = [...element.attributes]
+  attrs.forEach(({ name, value }) => {
+    value = value.trim()
+    if (name[0] === '@') {
+      actions = actions || {}
+      const actionExp = value.match(eventListnerExp)
+      if (actionExp) {
+        actions[name.slice(1)] = [actionExp[1].trim(), toFunc('[' + actionExp[2] + ']')]
+      } else {
+        actions[name.slice(1)] = [value]
+      }
+      element.removeAttribute(name)
+      return
+    }
+    if (value[0] === '{' && value[value.length - 1] === '}') {
+      bindings = bindings || {}
+      bindings[name] = toFunc(value.slice(1, -1))
+      element.removeAttribute(name)
+      return
+    }
+  })
   const meta: ElementMeta = {
     type: 'element',
     element: null as any
@@ -224,6 +216,7 @@ function parseElement (element: HTMLElement, components: Record<string, Componen
   //   meta.static = true
   //   return meta
   // }
+  const childrenMeta = parseChildren([...element.childNodes], components)
   element.innerHTML = ''
   meta.element = element.cloneNode(true) as HTMLElement
   if (actions) {

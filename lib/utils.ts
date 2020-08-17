@@ -22,15 +22,19 @@ export function createLoopCtx(this: VM, meta: LoopMeta, item: any, index: number
   return ctx
 }
 
-export function toFunc (expression: string) {
-  return new Function(`with(this) { return (${expression}) }`) as () => any // eslint-disable-line
+export function toFunc (exp: string) {
+  const func = new Function(`with(this) { return (${exp}) }`) as () => any // eslint-disable-line
+  if (process.env.NODE_ENV === 'unit_test') {
+    func.toString = () => exp
+  }
+  return func
 }
 
-export function isComponent (el: HTMLElement | string) {
+export function isComponent (el: Node | string) {
   if (typeof el === 'string') {
     return el.indexOf('-') > 0
   }
-  return el.tagName.indexOf('-') > 0
+  return isElement(el) && el.tagName.indexOf('-') > 0
 }
 
 export function CamelToHyphen (name: string) {
@@ -44,4 +48,9 @@ export function CamelToHyphen (name: string) {
     }
   }
   return cname.join('')
+}
+
+function diffTwoLists (list1: string[], list2: string[]) {
+  // 1,3,4,5 7
+  // 1 3 5 6
 }

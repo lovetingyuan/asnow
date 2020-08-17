@@ -10,7 +10,7 @@ export default class App {
     <h2>asnow example:</h2>
     <hr>
     <h3>Counter:</h3>
-    <my-counter count="3"></my-counter>
+    <my-counter count="{3}"></my-counter>
     <hr>
     <h3>Timer:</h3>
     <my-timer></my-timer>

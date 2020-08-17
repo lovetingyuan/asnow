@@ -1,4 +1,5 @@
 import { update } from 'asnow'
+import MyCounter from './Counter'
 
 export default class Timer {
   time: string
@@ -8,14 +9,12 @@ export default class Timer {
   constructor () {
     const date = new Date()
     this.time = date.toLocaleTimeString()
-    this.markList = [
-      'init 1', 'init 2'
-    ]
+    this.markList = []
     this.stop = true
   }
-
+  static components = { MyCounter }
   static template = `
-    <div> 
+    <div>
       time: { time }
       <button @click="toggle">{ stop ? 'start' : 'stop' }</button>
       <span #if="!stop">
@@ -23,9 +22,12 @@ export default class Timer {
         <button @click="clear">clear</button>
       </span>
       <ol #if="markList.length">
-        <li #for="(t, i) of markList" data-index="{i}">{t} <span style="cursor: pointer" @click="onDel(i)">×</span></li>
+        <li #for="(t, i) of markList" data-index="{i}">
+        {t} <span style="cursor: pointer" @click="onDel(i)">×</span></li>
       </ol>
       <p #else><i>No time records.</i></p>
+
+      <my-counter #for="(t, i) of markList" count="{i + 1}"></my-counter>
     </div>
   `
   toggle () {
