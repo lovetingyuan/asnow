@@ -27,7 +27,6 @@ export default class Timer {
         </li>
       </ol>
       <p #else><i>No time records.</i></p>
-
       <my-counter #for="(t, i) of markList by t.id" count="{t.id}"></my-counter>
     </div>
   `

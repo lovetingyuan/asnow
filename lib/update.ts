@@ -114,6 +114,12 @@ function updateCondition(this: VM, childNode: HTMLElement | Comment, childMeta: 
     const element = renderElementOrComponent.call(this, conditionMeta)
       ; (element as C_HTMLELement)._if = targetIndex
     childNode.replaceWith(element)
+    if (element.dataset.vmid) {
+      const vm = VMap.get(element.dataset.vmid) as VM
+      if (typeof vm.AfterMount === 'function') {
+        vm.AfterMount(element)
+      }
+    }
   } else {
     if ((childNode as C_HTMLELement)._if === targetIndex) {
       updateELementOrComponent.call(this, childNode, conditionMeta)
@@ -121,6 +127,12 @@ function updateCondition(this: VM, childNode: HTMLElement | Comment, childMeta: 
       const newElement = renderElementOrComponent.call(this, conditionMeta)
         ; (newElement as C_HTMLELement)._if = targetIndex
       cleanElement(childNode, newElement)
+      if (newElement.dataset.vmid) {
+        const vm = VMap.get(newElement.dataset.vmid) as VM
+        if (typeof vm.AfterMount === 'function') {
+          vm.AfterMount(newElement)
+        }
+      }
     }
   }
 }
@@ -162,7 +174,17 @@ function updateLoop(this: VM, childNode: HTMLElement | Comment, childMeta: LoopM
       if (index === 0) (element as L_HTMLELement)._for = keys
       frag.appendChild(element)
     })
+    const newNodes = [...frag.childNodes] as HTMLElement[]
     parent.insertBefore(frag, childNode)
+    if (newNodes[0].dataset.vmid) {
+      newNodes.forEach(el => {
+        const vm = VMap.get(el.dataset.vmid as string) as VM
+        if (typeof vm.AfterMount === 'function') {
+          vm.AfterMount(el)
+        }
+      })
+      newNodes.length = 0
+    }
     childNode.remove()
     return
   }
@@ -206,6 +228,12 @@ function updateLoop(this: VM, childNode: HTMLElement | Comment, childMeta: LoopM
     }
     if (index === 0) (el as L_HTMLELement)._for = newKeys
     parent.insertBefore(el, element)
+    if (!currentElementsMap[key] && el.dataset.vmid) {
+      const vm = VMap.get(el.dataset.vmid) as VM
+      if (typeof vm.AfterMount === 'function') {
+        vm.AfterMount(el)
+      }
+    }
   })
   while (element !== lastElement) {
     const el = element

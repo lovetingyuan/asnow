@@ -9,6 +9,7 @@ export interface ComponentClass {
 
 export interface ComponentLifeCycles {
   PropsUpdate?<T>(n: T, o: T): void
+  AfterMount?(el: HTMLElement): void
   BeforeRemove?(): void
 }
 
@@ -17,5 +18,6 @@ export interface CompiledComponentClass extends ComponentClass {
 }
 
 export interface VM {
-  [k: string]: unknown
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [k: string]: any
 }

@@ -30,7 +30,8 @@
     }
   },
   "include": [
-    "lib/**/*.ts"
+    "lib/**/*.ts",
+    "example/**/*.ts"
   ],
   "files": [
     "lib/index.ts"

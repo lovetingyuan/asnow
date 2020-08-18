@@ -134,7 +134,6 @@ function parseLoop (element: HTMLElement, components: Record<string, ComponentCl
 
 function parseChildren(childNodes: ChildNode[], components: Record<string, ComponentClass>) {
   const childrenMeta: Meta[] = []
-  // let staticCount = 0
   const conditionNodes: HTMLElement[] = []
   for (let i = 0; i < childNodes.length; i++) {
     const child = childNodes[i]
@@ -222,22 +221,21 @@ function parseElement (element: HTMLElement, components: Record<string, Componen
     type: 'element',
     element: null
   } as unknown as ElementMeta
-  // if (staticCount === children.length && !actions && !bindings) {
-  //   meta.element = cloneElement(element)
-  //   meta.static = true
-  //   return meta
-  // }
   const childrenMeta = parseChildren([...element.childNodes], components)
-  element.innerHTML = ''
-  meta.element = element.cloneNode(true) as HTMLElement
+  const isChildrenStatic = childrenMeta.every(m => ('static' in m) && m.static)
   if (actions) {
     meta.actions = actions
   }
   if (bindings) {
     meta.bindings = bindings
   }
-  if (childrenMeta.length) {
+  if (!isChildrenStatic) {
     meta.children = childrenMeta
+    element.innerHTML = ''
   }
+  if (isChildrenStatic && !actions && !bindings) {
+    meta.static = true
+  }
+  meta.element = element.cloneNode(true) as HTMLElement
   return meta
 }

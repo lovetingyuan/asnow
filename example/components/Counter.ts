@@ -14,8 +14,6 @@ export default class Counter {
     </div>
   `
   count: number
-  list: []
-  max: 1
   constructor (props: Props) {
     this.count = props.count || 0
   }
@@ -39,5 +37,8 @@ export default class Counter {
 
   handleReset (): void {
     update(this, { count: 0 })
+  }
+  AfterMount(el: HTMLElement): void {
+    console.log(el)
   }
 }

@@ -105,13 +105,16 @@ export const propsSymbol = Symbol('props')
 if (process.env.NODE_ENV === 'development') {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any)._vmap = VMap
+  setInterval(() => {
+    console.assert(VMap.size === document.querySelectorAll('[data-vmid]').length)
+  }, 30)
 }
 
 function renderComponent (this: VM, meta: ComponentMeta): HTMLElement {
   const Component = meta.component
   const props = meta.props.call(this)
   const vm = new Component(props)
-  const vmid = (Component.name as string) + '-' + VMap.size
+  const vmid = (Component.name as string) + '-' + Math.random().toString().slice(2, 10)
   vm[vmidSymbol as unknown as string] = vmid
   vm[propsSymbol as unknown as string] = props
   VMap.set(vmid, vm)
@@ -127,9 +130,16 @@ export default function render (component: ComponentClass, target: string | HTML
   }
   if (target instanceof HTMLElement) {
     const compiledComponent = compile(component)
-    target.appendChild(renderComponent.call({}, {
+    const element = renderComponent.call({}, {
       type: 'component', component: compiledComponent, props: () => ({})
-    }))
+    })
+    target.appendChild(element)
+    element.querySelectorAll('[data-vmid]').forEach((el) => {
+      const vm = VMap.get((el as HTMLElement).dataset.vmid as string) as VM
+      if (typeof vm.AfterMount === 'function') {
+        vm.AfterMount(el)
+      }
+    })
   } else {
     throw new Error(`invalid target: ${target}`)
   }

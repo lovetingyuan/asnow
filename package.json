@@ -3,7 +3,8 @@
   "version": "0.0.2",
   "description": "asnow, a simple UI library",
   "main": "dist/asnow.umd.js",
-  "module": "dist/asnow.esm.js",
+  "_module": "dist/asnow.esm.js",
+  "module": "lib/index.ts",
   "types": "types/index.d.ts",
   "files": [
     "lib",
