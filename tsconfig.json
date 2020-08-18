@@ -6,6 +6,7 @@
       "dom.iterable",
       "esnext"
     ],
+    "preserveSymlinks": true,
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -28,6 +29,9 @@
       "types": ["./types/*"]
     }
   },
+  "include": [
+    "lib/**/*.ts"
+  ],
   "files": [
     "lib/index.ts"
   ]

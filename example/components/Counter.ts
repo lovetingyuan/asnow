@@ -1,5 +1,9 @@
 import { update } from 'asnow'
 
+interface Props {
+  count?: number
+}
+
 export default class Counter {
   static template = `
     <div class="counter">
@@ -9,26 +13,31 @@ export default class Counter {
       </div>
     </div>
   `
-  count: 0
+  count: number
   list: []
   max: 1
-  constructor (props) {
+  constructor (props: Props) {
     this.count = props.count || 0
   }
-  PropsUpdate(newProps, old) {
+  PropsUpdate(newProps: Props, old: Props): void {
     console.log('update', newProps.count, old.count, newProps === old)
+    if (newProps.count !== old.count) {
+      update<Counter>(this, {
+        count: newProps.count,
+      })
+    }
   }
-  BeforeRemove() {
+  BeforeRemove(): void {
     console.log('remove')
   }
 
-  handleAdd () {
-    update(this, {
-      count: this.count + 1
+  handleAdd (): void {
+    update<Counter>(this, {
+      count: this.count + 1,
     })
   }
 
-  handleReset () {
+  handleReset (): void {
     update(this, { count: 0 })
   }
 }

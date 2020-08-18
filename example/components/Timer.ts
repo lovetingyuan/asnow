@@ -3,9 +3,9 @@ import MyCounter from './Counter'
 
 export default class Timer {
   time: string
-  markList: string[]
+  markList: {time: string, id: number}[]
   stop: boolean
-  timer?: any
+  timer?: number
   constructor () {
     const date = new Date()
     this.time = date.toLocaleTimeString()
@@ -22,21 +22,22 @@ export default class Timer {
         <button @click="clear">clear</button>
       </span>
       <ol #if="markList.length">
-        <li #for="(t, i) of markList" data-index="{i}">
-        {t} <span style="cursor: pointer" @click="onDel(i)">×</span></li>
+        <li #for="(t, i) of markList by t.id" data-index="{i}">
+          {t.time} <span style="cursor: pointer" @click="onDel(t.id)">×</span>
+        </li>
       </ol>
       <p #else><i>No time records.</i></p>
 
-      <my-counter #for="(t, i) of markList" count="{i + 1}"></my-counter>
+      <my-counter #for="(t, i) of markList by t.id" count="{t.id}"></my-counter>
     </div>
   `
-  toggle () {
+  toggle (): void {
     if (this.stop) {
       update(this, { stop: false })
-      this.timer = setInterval(() => {
+      this.timer = window.setInterval(() => {
         const date = new Date()
         update(this, {
-          time: date.toLocaleTimeString()
+          time: date.toLocaleTimeString(),
         })
       }, 999)
     } else {
@@ -45,20 +46,29 @@ export default class Timer {
     }
   }
 
-  mark () {
+  mark (): void {
     update(this, {
-      markList: this.markList.concat(this.time)
+      markList: this.markList.concat({
+        time: this.time,
+        id: Math.random()
+      })
     })
   }
 
-  clear () {
+  clear (): void {
     update(this, {
       markList: []
     })
   }
 
-  onDel (i: number) {
-    this.markList.splice(i, 1)
+  onDel (id: number): void {
+    console.log(id)
+    const index = this.markList.findIndex(v => v.id === id)
+    if (index === -1) {
+      console.log('not find ' + id)
+      return
+    }
+    this.markList.splice(index, 1)
     update(this, {
       markList: this.markList
     })

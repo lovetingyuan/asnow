@@ -6,7 +6,7 @@ example:
 ```javascript
 import { render, update } from 'asnow'
 
-class Hello {
+class HelloWorld {
   static template = `
   <h2>Hello world</h2>
   `
@@ -16,7 +16,7 @@ class Counter {
   constructor (props) {
     this.count = props.init || 0
   }
-  static components = { Hello }
+  static components = { HelloWorld }
   static template = `
     <div>
       <hello-world></hello-world>

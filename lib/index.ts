@@ -3,5 +3,7 @@ import update from './update'
 
 export {
   render,
-  update
+  update,
 }
+
+export default { render, update }
