@@ -1,6 +1,6 @@
 {
   "name": "asnow",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "asnow, a simple UI library",
   "main": "dist/asnow.umd.js",
   "module": "dist/asnow.esm.js",
