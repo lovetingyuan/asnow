@@ -1,6 +1,7 @@
 /* eslint-env node */
 const { terser } = require('rollup-plugin-terser')
 const rollupTypescript = require('@rollup/plugin-typescript')
+const replace = require('@rollup/plugin-replace')
 
 module.exports = [
   {
@@ -8,13 +9,16 @@ module.exports = [
     output: {
       file: 'dist/asnow.umd.js',
       format: 'umd',
-      name: 'Asnow'
+      name: 'Asnow',
     },
     plugins: [
       terser(),
       rollupTypescript({
         target: 'es5'
-      })
+      }),
+      replace({
+        'process.env.NODE_ENV': '"production"'
+      }),
     ]
   },
   {
