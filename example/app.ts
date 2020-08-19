@@ -1,9 +1,10 @@
 import MyTimer from './components/Timer'
 import MyCounter from './components/Counter'
+import TodoList from './components/TodoList'
 
 export default class App {
   static components = {
-    MyTimer, MyCounter
+    MyTimer, MyCounter, TodoList
   }
   static template = `
   <main>
@@ -14,6 +15,8 @@ export default class App {
     <hr>
     <h3>Timer:</h3>
     <my-timer></my-timer>
+    <hr>
+    <todo-list></todo-list>
   </main>
   `
 }

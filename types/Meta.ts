@@ -43,12 +43,8 @@ export interface ComponentMeta {
   type: 'component'
   component: CompiledComponentClass
   props: () => { [k: string]: unknown }
+  events?: { [k: string]: string }
 }
-
-// export type StaticMeta = {
-//   type: 'static'
-//   node: HTMLElement | string
-// }
 
 export interface MetaNode {
   'element': HTMLElement

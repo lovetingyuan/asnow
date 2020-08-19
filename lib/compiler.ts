@@ -69,24 +69,30 @@ function parseConditions (elements: HTMLElement[], components: Record<string, Co
 
 function parseComponent (node: HTMLElement, components: Record<string, ComponentClass>): ComponentMeta {
   const attrs = [...node.attributes]
-  const propsExpression = '{' + attrs.map(({ name, value }) => {
+  const props: string[] = [], events: { [k: string]: string } = {}
+  attrs.forEach(({ name, value }) => {
     value = value.trim()
-    if (value[0] === '{' && value[value.length - 1] === '}') {
-      value = value.slice(1, -1)
+    if (name[0] === '@') {
+      events[name.slice(1)] = value
+    } else if (value[0] === '{' && value[value.length - 1] === '}') {
+      props.push(`${JSON.stringify(name)}:(${value.slice(1, -1)})`)
     } else {
-      value = JSON.stringify(value)
+      props.push(`${JSON.stringify(name)}:(${JSON.stringify(value)})`)
     }
-    return `${JSON.stringify(name)}:(${value}),`
-  }) + '}'
+  })
   const tagName = node.tagName.toLowerCase()
   if (!components[tagName]) {
     throw new Error(`component ${tagName} can not be resolved.`)
   }
-  return {
+  const meta: ComponentMeta = {
     type: 'component',
     component: compile(components[tagName]),
-    props: toFunc(propsExpression)
+    props: toFunc('{' + props + '}')
   }
+  if (Object.keys(events).length) {
+    meta.events = events
+  }
+  return meta
 }
 
 function parseTextNode (node: Text): TextMeta {

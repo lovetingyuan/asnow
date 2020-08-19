@@ -18,7 +18,6 @@ export default class Counter {
     this.count = props.count || 0
   }
   PropsUpdate(newProps: Props, old: Props): void {
-    console.log('update', newProps.count, old.count, newProps === old)
     if (newProps.count !== old.count) {
       update<Counter>(this, {
         count: newProps.count,

@@ -68,6 +68,11 @@ function renderNode (this: VM, meta: Meta) {
 
 function renderElement (this: VM, meta: ElementMeta): HTMLElement {
   const element = meta.element.cloneNode(true) as HTMLElement
+  if (element.hasAttribute('ref') && !element.dataset.ref) {
+    const ref = element.getAttribute('ref')
+    const vmid = this[vmidSymbol as unknown as string]
+    element.dataset.ref = vmid + '_' + ref
+  }
   if (meta.bindings) {
     Object.entries(meta.bindings).forEach(([name, val]) => {
       element.setAttribute(name, val.call(this) + '')
@@ -80,7 +85,10 @@ function renderElement (this: VM, meta: ElementMeta): HTMLElement {
       const _handler = (event: Event) => {
         const _args = args ? args.call(this) : []
         _args.push(event)
-        return (this[method] as (...a: unknown[]) => unknown)(..._args)
+        if (typeof this[method] !== 'function') {
+          throw new Error(`${method} is not a function at ${this.constructor.name}`)
+        }
+        return this[method](..._args)
       }
       element.addEventListener(action, _handler)
       element.dataset.event = 'true'
@@ -101,6 +109,8 @@ function renderElement (this: VM, meta: ElementMeta): HTMLElement {
 export const VMap: Map<string, VM> = new Map()
 export const vmidSymbol = Symbol('vmid')
 export const propsSymbol = Symbol('props')
+export const eventSymbol = Symbol('event')
+export const parentSymbol = Symbol('parent')
 
 if (process.env.NODE_ENV === 'development') {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -110,17 +120,41 @@ if (process.env.NODE_ENV === 'development') {
   }, 30)
 }
 
+let vmCount = 0
+
 function renderComponent (this: VM, meta: ComponentMeta): HTMLElement {
   const Component = meta.component
   const props = meta.props.call(this)
   const vm = new Component(props)
-  const vmid = (Component.name as string) + '-' + Math.random().toString().slice(2, 10)
+  const vmid = (Component.name as string) + '-' + (vmCount++)
   vm[vmidSymbol as unknown as string] = vmid
   vm[propsSymbol as unknown as string] = props
+  vm[parentSymbol as unknown as string] = this
+  vm[eventSymbol as unknown as string] = meta.events
   VMap.set(vmid, vm)
   const element = renderElement.call(vm, Component.meta)
   element.dataset.vmid = vmid
   return element
+}
+
+export function getRef<T extends Record<string, HTMLElement>, RT extends keyof T>(vm: VM, refName: RT): T[RT] {
+  const vmid = vm[vmidSymbol as unknown as string]
+  const element = document.querySelector(`[data-vmid="${vmid}"]`) as HTMLElement
+  return element.querySelector(`[data-ref="${vmid}_${refName}"]`) as T[RT]
+}
+
+export function callUp (vm: VM, eventName: string, ...args: unknown[]): unknown {
+  const eventMap: {
+    [k: string]: string
+  } | undefined = vm[eventSymbol as unknown as string]
+  if (!eventMap) return
+  const method = eventMap[eventName]
+  while (vm) {
+    if (typeof vm[method] === 'function') {
+      return vm[method](...args)
+    }
+    vm = vm[parentSymbol as unknown as string]
+  }
 }
 
 // render root component
